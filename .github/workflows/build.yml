@@ -113,9 +113,12 @@ jobs:
       # 全失败按红线生成空列表。
       - name: Verify
         run: |
+          # GitHub Actions 默认用 `bash -e` 跑 run 脚本（即使在脚本里写 set -uo pipefail 也带 -e）。
+          # 必须用 `|| rc=$?` 捕获退出码，否则 kernel_probe 返回 2 会直接中断、降级分支永远跑不到。
+          # 实测：原写法 `python ...; rc=$?` 在 -e 下返回 2 立即退出（2026-11-20 CI 踩坑）。
           set -uo pipefail
-          python scripts/kernel_probe.py
-          rc=$?
+          rc=0
+          python scripts/kernel_probe.py || rc=$?
           if [ "$rc" -eq 2 ]; then
             echo "kernel probe unavailable (rc=2); falling back to port-level liveness_check.py"
             python scripts/liveness_check.py

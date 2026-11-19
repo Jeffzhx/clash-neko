@@ -52,7 +52,7 @@ VERSION_LABEL = os.environ.get("MIHOMO_VERSION", "").strip()
 GOOD_TYPES = {"hysteria", "hysteria2", "anytls", "tuic", "vless", "trojan"}  # naive 已移除：mihomo 内核不支持
 DEFAULT_UP = "100 Mbps"
 DEFAULT_DOWN = "200 Mbps"
-BOOT_WAIT_SEC = 12
+BOOT_WAIT_SEC = 20  # CI 上内核启动可能比本机慢，放宽等待；失败会打印内核日志尾部诊断
 
 
 def utc_now_iso() -> str:
@@ -298,13 +298,33 @@ def main() -> int:
     with tempfile.TemporaryDirectory(prefix="kernel-probe-") as workdir:
         port = free_port()
         cfg = build_config(nodes, port, workdir)
-        proc = subprocess.Popen(
-            [MIHOMO_BIN, "-f", cfg, "-d", workdir],
-            stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
-        )
+        # 内核日志写到文件而不是丢弃：启动失败时能打印出来定位（CI 上曾因 DEVNULL 看不到原因）。
+        kernel_log = os.path.join(workdir, "kernel.log")
+        logf = open(kernel_log, "w", encoding="utf-8", errors="replace")
+        try:
+            proc = subprocess.Popen(
+                [MIHOMO_BIN, "-f", cfg, "-d", workdir],
+                stdout=logf, stderr=subprocess.STDOUT,
+            )
+        except Exception as e:
+            # 内核文件存在但不是可执行的 mihomo（或权限/架构问题）→ 视为不可用，降级。
+            print(f"[kernel-probe] 内核启动异常（{type(e).__name__}: {e}）→ 返回码 2（降级）", file=sys.stderr)
+            logf.close()
+            return 2
         try:
             if not wait_controller(port, proc):
                 print("[kernel-probe] mihomo external-controller 未就绪 → 返回码 2（降级）", file=sys.stderr)
+                # 打印内核日志尾部，便于看清是启动崩溃 / 配置错误 / 权限问题。
+                try:
+                    logf.flush()
+                    with open(kernel_log, "r", encoding="utf-8", errors="replace") as f:
+                        tail = f.read().splitlines()[-20:]
+                    if tail:
+                        print("[kernel-probe] 内核日志尾部（诊断）：", file=sys.stderr)
+                        for line in tail:
+                            print("  | " + line[:300], file=sys.stderr)
+                except Exception as e:
+                    print(f"[kernel-probe] 读取内核日志失败：{e}", file=sys.stderr)
                 return 2
             # 并发测活：放宽协议后节点可达数百个，串行会超过 CI 时限；8 并发把它压到几分钟。
             import concurrent.futures
@@ -349,6 +369,7 @@ def main() -> int:
                     proc.wait(timeout=5)
                 except subprocess.TimeoutExpired:
                     proc.kill()
+            logf.close()
 
     alive = [r for r in records if r["_liveness"]["alive"] is True]
     dead = [r for r in records if r["_liveness"]["alive"] is False]
