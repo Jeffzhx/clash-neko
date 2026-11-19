@@ -12,8 +12,6 @@ on:
 permissions:
   contents: write
 
-# 防止卡住的探测拖垮整次运行；单步内的网络动作另有硬超时。
-timeout-minutes: 25
 concurrency:
   group: daily-subscription-build
   cancel-in-progress: false
@@ -21,6 +19,8 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
+    # timeout-minutes 是 job 级键（不能放顶层）；防止卡住的探测拖垮整次运行。
+    timeout-minutes: 25
     steps:
       # persist-credentials 默认 true：把 GITHUB_TOKEN 写入本地 git 配置，最后的 push 才能用。
       - name: Checkout
