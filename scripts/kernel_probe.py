@@ -72,6 +72,20 @@ def _obfs_of(node: dict) -> str:
     return _first(node, "obfs", default="")
 
 
+def _apply_obfs(node: dict, proxy: dict) -> None:
+    """写 obfs 字段对；mihomo 要求 obfs 必须配 obfs-password，否则解析整个配置 fatal。
+    源里只有 obfs 没有 password 时选择不开启混淆（丢弃 obfs），保证配置合法、不影响其它节点。
+    """
+    obfs = _obfs_of(node)
+    if not obfs:
+        return
+    pwd = _first(node, "obfs-password", "obfs_password", "obfspwd", default="")
+    if not pwd:
+        return  # 缺密码→不开混淆，避免内核 fatal
+    proxy["obfs"] = obfs
+    proxy["obfs-password"] = pwd
+
+
 def _alpn_of(node: dict) -> list[str]:
     """alpn 兼容 list 与逗号分隔字符串两种来源。"""
     v = node.get("alpn")
@@ -105,7 +119,6 @@ def to_mihomo_proxy(node: dict, name: str) -> dict:
     port = int(node.get("port", 443) or 443)
     sni = _first(node, "sni", "server_name", "host", default="")
     skip = bool(node.get("skip-cert-verify", True))
-    obfs = _obfs_of(node)
 
     proxy: dict = {"name": name, "type": ntype, "server": server, "port": port}
 
@@ -114,13 +127,11 @@ def to_mihomo_proxy(node: dict, name: str) -> dict:
         if sni:
             proxy["sni"] = sni
         proxy["skip-cert-verify"] = skip
-        if obfs:
-            proxy["obfs"] = obfs
+        _apply_obfs(node, proxy)
 
     elif ntype == "hysteria":
         proxy["auth"] = _first(node, "auth", "auth_str", "password")
-        if obfs:
-            proxy["obfs"] = obfs
+        _apply_obfs(node, proxy)
         proxy["protocol"] = _first(node, "protocol", default="udp")
         if sni:
             proxy["sni"] = sni
