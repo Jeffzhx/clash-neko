@@ -1,26 +1,10 @@
-{
-  "outbounds": [
-    {
-      "type": "direct",
-      "tag": "direct"
-    },
-    {
-      "type": "block",
-      "tag": "block"
-    }
-  ],
-  "dns": {
-    "servers": [
-      {
-        "tag": "dns-local",
-        "type": "udp",
-        "server": "223.5.5.5"
-      }
-    ],
-    "rules": []
-  },
-  "route": {
-    "rules": [],
-    "default": "direct"
-  }
-}
+proxies: []
+proxy-groups:
+- name: PROXY
+  type: select
+  proxies:
+  - DIRECT
+  - REJECT
+rules:
+- GEOIP,private,DIRECT,no-resolve
+- MATCH,PROXY

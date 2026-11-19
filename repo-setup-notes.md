@@ -45,12 +45,13 @@ __pycache__/
   - `https://cdn.jsdelivr.net/gh/Jeffzhx/clash-neko@main/nekobox.json`
 - 首次可能有几分钟 CDN 缓存延迟；可在 URL 后加 `?t=时间戳` 强制刷新。
 - 在 Clash Verge / NekoBox 中导入对应地址验证解析（当前为空订阅属正常，见下）。
+- **单格式说明（2026-11-20 改）**：两个地址现在都是同一份 Clash YAML 内容；`nekobox.json` 只是文件名沿用，内容是 Clash（NekoBox 导入订阅按内容嗅探、不认 sing-box JSON）。两个地址都能导入，节点集合完全一致。
 
 ## 已知待复核项
 
 - **mmdb 镜像**：本机代理下默认镜像不可达（本机网络限制）；GitHub Actions 境外 runner 应可达。若 CI 报下载失败，在仓库 **Settings → Variables → Actions** 新建 `MMDB_URL` 指向可用镜像。
 - **空订阅**：若 runner 测活后无节点，`main.yaml` 会是 `proxies: []`——这是合规结果（红线：全失败生成空列表），不是故障；网络恢复后自动重填。
-- **内核级校验**：本机无 mihomo/sing-box 内核，双格式只做了结构校验，未做 `-t` / `check`；建议在客户端实际导入验证。
+- **内核级校验**：本机无 mihomo/sing-box 内核，订阅只做了 YAML 结构校验，未做 `-t` / `check`；建议在客户端实际导入验证。
 - **防止自触发循环**：内置 `GITHUB_TOKEN` 的 push **不会**再次触发 workflow（GitHub 默认行为），无需额外处理。
 
 ## 建设期完成后的运营滚动
