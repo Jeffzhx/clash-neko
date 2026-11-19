@@ -1,4 +1,4 @@
-name: Daily Subscription
+name: Daily Sync
 
 # 单仓方案：源码与产物都在 Jeffzhx/clash-neko（公开仓）。
 # 每天定时抓取 GitHub 低星源的美国优质节点，生成双格式订阅并就地提交到本仓 main，
@@ -35,14 +35,14 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Install dependencies
+      - name: Prepare env
         run: |
           python -m pip install --upgrade pip
           pip install pyyaml maxminddb
 
       # geoip_filter.py 的 mmdb 路径由 GEOIP_MMDB 覆盖（未设时回退本机 D: 路径，仅本地用）。
       # GeoLite2-Country 官方站需 license key，默认用公开镜像；可在仓库 Variables 里设 MMDB_URL 覆盖。
-      - name: Download GeoIP mmdb
+      - name: Prepare data
         run: |
           set -euo pipefail
           URL="${{ vars.MMDB_URL }}"
@@ -63,7 +63,7 @@ jobs:
 
       # 下载 mihomo 内核用于协议级测活（真实 hysteria2 握手 + HTTP 请求）。
       # 版本可用 Variables MIHOMO_VERSION 覆盖；下载失败不阻断——测活步骤会降级到端口级。
-      - name: Download mihomo kernel
+      - name: Prepare tools
         run: |
           set -uo pipefail
           V="${{ vars.MIHOMO_VERSION }}"
@@ -90,18 +90,18 @@ jobs:
           exit 0
 
       # 抓取阶段用 GITHUB_TOKEN 提额到 5000/h（token 只在内存用，经 env 注入，不落盘）。
-      - name: Fetch nodes from low-star repos
+      - name: Collect
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: python scripts/fetch_sources.py
 
       # GeoIP / 美国判定（GEOIP_MMDB 由上一步注入）
-      - name: GeoIP US filter
+      - name: Filter
         run: python scripts/geoip_filter.py
 
       # 测活：内核优先（协议级真实握手）；内核缺失/启动失败(退出码2)自动降级到端口级 TCP/UDP。
       # 全失败按红线生成空列表。
-      - name: Liveness check (kernel first, port-level fallback)
+      - name: Verify
         run: |
           set -uo pipefail
           python scripts/kernel_probe.py
@@ -115,11 +115,11 @@ jobs:
           fi
 
       # 双格式订阅输出（同一批节点，main.yaml + nekobox.json）
-      - name: Build subscriptions
+      - name: Generate
         run: python scripts/build_subscriptions.py
 
       # 校验产物结构后再提交，避免把坏文件推上去
-      - name: Validate outputs
+      - name: Check
         run: |
           set -euo pipefail
           python - <<'PY'
@@ -135,7 +135,7 @@ jobs:
 
       # 单仓就地提交： commit message 带时间戳头部；无变化则跳过，避免空提交。
       # 用内置 GITHUB_TOKEN（checkout 已 persist），无需 PUBLISH_TOKEN。
-      - name: Commit & push subscriptions
+      - name: Publish
         run: |
           set -euo pipefail
           TS="$(date -u +'%Y-%m-%dT%H:%M:%SZ')"
