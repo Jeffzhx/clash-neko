@@ -1,6 +1,6 @@
 # U4 内核级真实测活报告
 
-- 生成时间：2026-11-19T18:41:40+00:00
+- 生成时间：2026-11-19T19:05:06+00:00
 - 引擎：mihomo external-controller `/proxies/{name}/delay`（内核 v1.19.34）
 - 测活 URL：`http://www.gstatic.com/generate_204`；单节点超时 8000ms
 - 判定：alive 0 / dead 7 / unknown 0
