@@ -1,12 +1,12 @@
 # U3 GeoIP / 美国判定报告
 
-- 生成时间：2026-11-19T18:12:06+00:00
+- 生成时间：2026-11-19T18:41:40+00:00
 - 查询日期：2026-11-19（本地）；UTC 2026-11-19
-- 输入：`nodes_raw.json`（81 节点）；背景：`sources.json`（8 个低星来源）
+- 输入：`nodes_raw.json`（62 节点）；背景：`sources.json`（8 个低星来源）
 - mmdb 路径：`/home/runner/work/_temp/Country.mmdb`
 - mmdb 版本元数据：database_type=GeoLite2-Country；build_epoch=1794932458（2026-11-17T16:20:58+00:00）；ip_version=6；record_size=24
 - 优质协议白名单：anytls, hysteria, hysteria2
-- 结果：**US 优质节点 7** / 输入 81 / 过滤 74
+- 结果：**US 优质节点 7** / 输入 62 / 过滤 55
 
 ## 逐节点判定（server / type / cc / cc_basis / 是否入选）
 
@@ -74,41 +74,22 @@
 | 60 | `150.230.229.100` | hysteria2 | BR | ip-literal | 否 | mmdb 命中 150.230.229.100 -> BR |
 | 61 | `152.32.254.68` | hysteria2 | HK | ip-literal | 否 | mmdb 命中 152.32.254.68 -> HK |
 | 62 | `159.13.55.48` | hysteria2 | AU | ip-literal | 否 | mmdb 命中 159.13.55.48 -> AU |
-| 63 | `ca60984f` | hysteria2 | - | unknown | 否 | 非合法域名/IP（疑似 README URI 碎片），不解析 DNS |
-| 64 | `549766c3` | hysteria2 | - | unknown | 否 | 非合法域名/IP（疑似 README URI 碎片），不解析 DNS |
-| 65 | `9a9f167d` | hysteria2 | - | unknown | 否 | 非合法域名/IP（疑似 README URI 碎片），不解析 DNS |
-| 66 | `promo.betust.net` | hysteria2 | SE | domain-resolved | 否 | 解析到 50.7.38.243 -> SE |
-| 67 | `github.com%2FAlvin9999` | hysteria2 | - | invalid_server | 否 | URL编码碎片：'github.com%2FAlvin9999' -> 'github.com/Alvin9999' 非合法 hostname/IP |
-| 68 | `3.76.203.180` | hysteria2 | DE | ip-literal | 否 | mmdb 命中 3.76.203.180 -> DE |
-| 69 | `13.36.234.11` | hysteria2 | FR | ip-literal | 否 | mmdb 命中 13.36.234.11 -> FR |
-| 70 | `18.153.65.67` | hysteria2 | DE | ip-literal | 否 | mmdb 命中 18.153.65.67 -> DE |
-| 71 | `140.238.213.114` | hysteria2 | CH | ip-literal | 否 | mmdb 命中 140.238.213.114 -> CH |
-| 72 | `github.com%2FAlvin9999` | hysteria2 | - | invalid_server | 否 | URL编码碎片：'github.com%2FAlvin9999' -> 'github.com/Alvin9999' 非合法 hostname/IP |
-| 73 | `3.76.203.180` | hysteria2 | DE | ip-literal | 否 | mmdb 命中 3.76.203.180 -> DE |
-| 74 | `13.36.234.11` | hysteria2 | FR | ip-literal | 否 | mmdb 命中 13.36.234.11 -> FR |
-| 75 | `18.153.65.67` | hysteria2 | DE | ip-literal | 否 | mmdb 命中 18.153.65.67 -> DE |
-| 76 | `140.238.213.114` | hysteria2 | CH | ip-literal | 否 | mmdb 命中 140.238.213.114 -> CH |
-| 77 | `github.com%2FAlvin9999` | hysteria2 | - | invalid_server | 否 | URL编码碎片：'github.com%2FAlvin9999' -> 'github.com/Alvin9999' 非合法 hostname/IP |
-| 78 | `3.76.203.180` | hysteria2 | DE | ip-literal | 否 | mmdb 命中 3.76.203.180 -> DE |
-| 79 | `13.36.234.11` | hysteria2 | FR | ip-literal | 否 | mmdb 命中 13.36.234.11 -> FR |
-| 80 | `18.153.65.67` | hysteria2 | DE | ip-literal | 否 | mmdb 命中 18.153.65.67 -> DE |
-| 81 | `140.238.213.114` | hysteria2 | CH | ip-literal | 否 | mmdb 命中 140.238.213.114 -> CH |
 
 ## 按 cc 分布统计
 
 | cc | 节点数 |
 |----|--------|
-| (unknown) | 21 |
-| DE | 12 |
+| (unknown) | 15 |
 | US | 7 |
-| CH | 5 |
-| FR | 5 |
+| DE | 6 |
 | HK | 5 |
 | KR | 5 |
 | SG | 5 |
 | JP | 4 |
-| SE | 3 |
 | AU | 2 |
+| CH | 2 |
+| FR | 2 |
+| SE | 2 |
 | TW | 2 |
 | BR | 1 |
 | IL | 1 |
@@ -120,13 +101,13 @@
 
 | 原因类别 | 数量 | 含义 |
 |----------|------|------|
-| non_us_country | 53 | mmdb 命中但国家码非 US |
-| unknown | 17 | DNS失败/超时、URI碎片假域名、私有保留段、mmdb非标准ISO码 |
-| invalid_server | 4 | URL 编码垃圾 / 空 server，解码后仍非合法 hostname/IP |
+| non_us_country | 40 | mmdb 命中但国家码非 US |
+| unknown | 14 | DNS失败/超时、URI碎片假域名、私有保留段、mmdb非标准ISO码 |
+| invalid_server | 1 | URL 编码垃圾 / 空 server，解码后仍非合法 hostname/IP |
 
 ## URL 编码碎片节点（单独点名）
 
-- `github.com%2FAlvin9999` → 解码后 `github.com/Alvin9999`，非合法 hostname/IP，cc_basis=invalid_server，共 4 处，全部排除
+- `github.com%2FAlvin9999` → 解码后 `github.com/Alvin9999`，非合法 hostname/IP，cc_basis=invalid_server，共 1 处，全部排除
 
 ## 判定规则与依据
 

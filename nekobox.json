@@ -7,44 +7,6 @@
     {
       "type": "block",
       "tag": "block"
-    },
-    {
-      "type": "hysteria2",
-      "tag": "US-hysteria2-206.189.229.48-443",
-      "server": "206.189.229.48",
-      "server_port": 443,
-      "auth_str": "YV1sd3tfCZngTtnvRmy7",
-      "sni": "www.microsoft.com",
-      "tls": {
-        "enabled": true,
-        "server_name": "www.microsoft.com",
-        "insecure": true
-      }
-    },
-    {
-      "type": "hysteria2",
-      "tag": "US-hysteria2-34.24.25.1-443",
-      "server": "34.24.25.1",
-      "server_port": 443,
-      "auth_str": "8dOHZ13sx33R1/PQbhTK/w==",
-      "sni": "bing.com",
-      "tls": {
-        "enabled": true,
-        "server_name": "bing.com",
-        "insecure": true
-      }
-    },
-    {
-      "type": "hysteria2",
-      "tag": "US-hysteria2-66.94.121.46-443",
-      "server": "66.94.121.46",
-      "server_port": 443,
-      "auth_str": "gf1:gfhysteria2024",
-      "tls": {
-        "enabled": true,
-        "server_name": "66.94.121.46",
-        "insecure": true
-      }
     }
   ],
   "dns": {
