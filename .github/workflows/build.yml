@@ -61,6 +61,29 @@ jobs:
           ls -l "$RUNNER_TEMP/Country.mmdb"
           echo "GEOIP_MMDB=$RUNNER_TEMP/Country.mmdb" >> "$GITHUB_ENV"
 
+      # 下载 mihomo 内核用于协议级测活（真实 hysteria2 握手 + HTTP 请求）。
+      # 版本可用 Variables MIHOMO_VERSION 覆盖；下载失败不阻断——测活步骤会降级到端口级。
+      - name: Download mihomo kernel
+        run: |
+          set -uo pipefail
+          V="${{ vars.MIHOMO_VERSION }}"
+          [ -z "$V" ] && V="v1.19.34"
+          BASE="https://github.com/MetaCubeX/mihomo/releases/download/${V}"
+          ok=0
+          for name in "mihomo-linux-amd64-compatible-${V}.gz" "mihomo-linux-amd64-${V}.gz"; do
+            if curl -fsSL --retry 2 --max-time 120 "${BASE}/${name}" -o "$RUNNER_TEMP/mihomo.gz"; then
+              gunzip -f "$RUNNER_TEMP/mihomo.gz"
+              chmod +x "$RUNNER_TEMP/mihomo"
+              "$RUNNER_TEMP/mihomo" -v 2>&1 | head -1 || true
+              echo "MIHOMO_BIN=$RUNNER_TEMP/mihomo" >> "$GITHUB_ENV"
+              echo "MIHOMO_VERSION=${V}" >> "$GITHUB_ENV"
+              echo "mihomo downloaded (${name})"
+              ok=1
+              break
+            fi
+          done
+          [ "$ok" -eq 0 ] && echo "::warning::mihomo download failed; liveness will fall back to port-level TCP/UDP"
+
       # 抓取阶段用 GITHUB_TOKEN 提额到 5000/h（token 只在内存用，经 env 注入，不落盘）。
       - name: Fetch nodes from low-star repos
         env:
@@ -71,9 +94,20 @@ jobs:
       - name: GeoIP US filter
         run: python scripts/geoip_filter.py
 
-      # 测活（境外 runner 直连，TCP/UDP 探测；全失败按红线生成空列表）
-      - name: Liveness check
-        run: python scripts/liveness_check.py
+      # 测活：内核优先（协议级真实握手）；内核缺失/启动失败(退出码2)自动降级到端口级 TCP/UDP。
+      # 全失败按红线生成空列表。
+      - name: Liveness check (kernel first, port-level fallback)
+        run: |
+          set -uo pipefail
+          python scripts/kernel_probe.py
+          rc=$?
+          if [ "$rc" -eq 2 ]; then
+            echo "kernel probe unavailable (rc=2); falling back to port-level liveness_check.py"
+            python scripts/liveness_check.py
+          elif [ "$rc" -ne 0 ]; then
+            echo "kernel probe failed unexpectedly (rc=$rc)" >&2
+            exit "$rc"
+          fi
 
       # 双格式订阅输出（同一批节点，main.yaml + nekobox.json）
       - name: Build subscriptions

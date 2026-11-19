@@ -429,13 +429,35 @@ def main() -> int:
         if res["failed"]:
             failed_sources.append({"full_name": res["full"], "reason": res["failed"]})
 
+    # 全局去重（跨源/跨文件）：单文件内 parse_nodes_ext 已去重，这里再按同一键合并。
+    # 同一节点被多个源收录时保留首次出现者，并在 _also_in 记录其它来源，便于追溯。
+    dedup_seen: dict[tuple, dict] = {}
+    deduped: list = []
+    dup_removed = 0
+    for n in all_nodes:
+        if not isinstance(n, dict):
+            continue
+        key = (str(n.get("type", "")).lower(), str(n.get("server", "")).strip(),
+               str(n.get("port", "")))
+        if key in dedup_seen:
+            dup_removed += 1
+            first = dedup_seen[key]
+            src = str(n.get("_src", ""))
+            if src and src not in first.setdefault("_also_in", []):
+                first["_also_in"].append(src)
+            continue
+        dedup_seen[key] = n
+        deduped.append(n)
+    all_nodes = deduped
+
     log(f"[U2] GitHub API 实际请求 {API_CALLS} 次；缓存命中 {CACHE_HITS} 次（命中未发请求）")
-    log(f"[U2] 节点合计 {len(all_nodes)}；失败源 {len(failed_sources)}")
+    log(f"[U2] 全局去重移除 {dup_removed} 个重复节点；去重后节点合计 {len(all_nodes)}；失败源 {len(failed_sources)}")
 
     out = {
         "generated_at": datetime.datetime.now(datetime.timezone.utc).isoformat(timespec="seconds"),
         "source_count": len(repos),
         "node_count": len(all_nodes),
+        "duplicates_removed": dup_removed,
         "api_calls": API_CALLS,
         "cache_hits": CACHE_HITS,
         "failed_sources": failed_sources,
