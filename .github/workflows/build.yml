@@ -1,9 +1,11 @@
-name: Daily build US hysteria subscription
+name: Daily Subscription
 
 # 单仓方案：源码与产物都在 Jeffzhx/clash-neko（公开仓）。
 # 每天定时抓取 GitHub 低星源的美国优质节点，生成双格式订阅并就地提交到本仓 main，
 # 由 jsDelivr 分发。也可在 Actions 页手动触发。
 on:
+  push:
+    branches: [main]      # 推送到 main 时自动重建订阅
   schedule:
     - cron: '0 3 * * *'   # 每天 03:00 UTC（北京时间 11:00）
   workflow_dispatch:      # 手动触发
@@ -104,7 +106,7 @@ jobs:
           if git diff --cached --quiet; then
             echo "No changes to publish; skipping commit"
           else
-            git commit -m "[auto ${TS}] daily subscription update"
+            git commit -m "[auto ${TS}] daily subscription update [skip ci]"
             git push origin "HEAD:${GITHUB_REF_NAME}"
             echo "Published to ${GITHUB_REPOSITORY}@${GITHUB_REF_NAME}"
           fi
