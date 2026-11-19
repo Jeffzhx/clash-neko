@@ -1,6 +1,6 @@
 # 源发现报告（discover_sources.py）
 
-- 时间戳(UTC)：2026-11-19T20:46:18+00:00
+- 时间戳(UTC)：2026-11-19T21:38:51+00:00
 - 运行模式：WRITE（已写回 sources.json）
 - 鉴权：GITHUB_TOKEN(Bearer)（token 值不记录）
 - 接口：https://api.github.com/search/repositories
@@ -28,29 +28,29 @@
 - 原始结果条数（各查询合计，未去重）：219
 - 关键词过滤掉（非代理/订阅）：33
 - star < 1 过滤掉：0
-- 已在 sources.json 中（去重跳过）：37
-- 本批次内重复（去重跳过）：9
-- 达 --max-new 上限跳过：125（上限 15）
+- 已在 sources.json 中（去重跳过）：61
+- 本批次内重复（去重跳过）：11
+- 达 --max-new 上限跳过：99（上限 15）
 - 本次新增：15
-- 合并后总数：38（原 23）
+- 合并后总数：53（原 38）
 
 ## 新增源清单
 
-- Mahdi0024/ProxyCollector ★331 | branch=master | fetched_at=2026-11-19 | https://github.com/Mahdi0024/ProxyCollector
-- F0rc3Run/F0rc3Run ★326 | branch=main | fetched_at=2026-11-19 | https://github.com/F0rc3Run/F0rc3Run
-- lonelam/subconverter-rs ★325 | branch=main | fetched_at=2026-09-01 | https://github.com/lonelam/subconverter-rs
-- realchendahuang/sub-store-cloudflare ★317 | branch=main | fetched_at=2026-10-31 | https://github.com/realchendahuang/sub-store-cloudflare
-- shenaba/2s-ui ★296 | branch=main | fetched_at=2026-11-19 | https://github.com/shenaba/2s-ui
-- CaddyGlow/ccproxy-api ★279 | branch=main | fetched_at=2026-10-07 | https://github.com/CaddyGlow/ccproxy-api
-- Pawdroid/Free-servers ★19978 | branch=main | fetched_at=2026-11-19 | https://github.com/Pawdroid/Free-servers
-- tindy2013/subconverter ★17123 | branch=master | fetched_at=2026-07-09 | https://github.com/tindy2013/subconverter
-- sub-store-org/Sub-Store ★10946 | branch=master | fetched_at=2026-11-19 | https://github.com/sub-store-org/Sub-Store
-- vvbbnn00/WARP-Clash-API ★8795 | branch=master | fetched_at=2024-09-04 | https://github.com/vvbbnn00/WARP-Clash-API
-- 7Sageer/sublink-worker ★5601 | branch=main | fetched_at=2026-11-18 | https://github.com/7Sageer/sublink-worker
-- 0xRadikal/Free-v2ray-Configs ★910 | branch=main | fetched_at=2026-11-19 | https://github.com/0xRadikal/Free-v2ray-Configs
-- xiaoji235/airport-free ★556 | branch=main | fetched_at=2026-09-23 | https://github.com/xiaoji235/airport-free
-- mermeroo/V2RAY-CLASH-BASE64-Subscription.Links ★528 | branch=main | fetched_at=2026-11-09 | https://github.com/mermeroo/V2RAY-CLASH-BASE64-Subscription.Links
-- kanshurichard/GoHomeEasy ★476 | branch=main | fetched_at=2025-12-14 | https://github.com/kanshurichard/GoHomeEasy
+- SubConv/SubConv ★414 | branch=main | fetched_at=2026-11-19 | https://github.com/SubConv/SubConv
+- KJGX66F/FreeNodePanel ★383 | branch=main | fetched_at=2026-11-05 | https://github.com/KJGX66F/FreeNodePanel
+- ClickDevTech/CELERITY-panel ★230 | branch=main | fetched_at=2026-11-18 | https://github.com/ClickDevTech/CELERITY-panel
+- daimon3332/easy-proxies ★216 | branch=main | fetched_at=2026-11-04 | https://github.com/daimon3332/easy-proxies
+- kazeyukiro/3m-ui ★199 | branch=main | fetched_at=2026-11-19 | https://github.com/kazeyukiro/3m-ui
+- xyfqzy/free-nodes ★198 | branch=main | fetched_at=2026-11-19 | https://github.com/xyfqzy/free-nodes
+- imraywang/proxy-fleet ★175 | branch=main | fetched_at=2026-10-24 | https://github.com/imraywang/proxy-fleet
+- junjun266/FreeProxyGo ★164 | branch=main | fetched_at=2026-11-19 | https://github.com/junjun266/FreeProxyGo
+- eooce/Merge-sub ★158 | branch=main | fetched_at=2026-02-12 | https://github.com/eooce/Merge-sub
+- SnapdragonLee/SystemProxy ★139 | branch=master | fetched_at=2026-11-19 | https://github.com/SnapdragonLee/SystemProxy
+- Clashforwinodws/Clash-for-Winodows ★132 | branch=main | fetched_at=2026-09-29 | https://github.com/Clashforwinodws/Clash-for-Winodows
+- MHSanaei/3x-ui ★50200 | branch=main | fetched_at=2026-11-19 | https://github.com/MHSanaei/3x-ui
+- snakem982/proxypool ★2286 | branch=main | fetched_at=2026-11-19 | https://github.com/snakem982/proxypool
+- RayWangQvQ/sing-box-installer ★367 | branch=main | fetched_at=2025-06-08 | https://github.com/RayWangQvQ/sing-box-installer
+- crashgfw/free-airport-nodes ★308 | branch=main | fetched_at=2026-11-19 | https://github.com/crashgfw/free-airport-nodes
 
 ## 错误 / 限流
 

@@ -1,6 +1,6 @@
 {
-  "generated_at": "2026-11-19T20:46:18+00:00",
-  "count": 38,
+  "generated_at": "2026-11-19T21:38:51+00:00",
+  "count": 53,
   "repos": [
     {
       "full_name": "rekt0ro/ProxyRift",
@@ -295,6 +295,126 @@
       "stars": 476,
       "url": "https://github.com/kanshurichard/GoHomeEasy",
       "fetched_at": "2025-12-14",
+      "criteria": "stars-unlimited",
+      "branch": "main"
+    },
+    {
+      "full_name": "SubConv/SubConv",
+      "stars": 414,
+      "url": "https://github.com/SubConv/SubConv",
+      "fetched_at": "2026-11-19",
+      "criteria": "stars-unlimited",
+      "branch": "main"
+    },
+    {
+      "full_name": "KJGX66F/FreeNodePanel",
+      "stars": 383,
+      "url": "https://github.com/KJGX66F/FreeNodePanel",
+      "fetched_at": "2026-11-05",
+      "criteria": "stars-unlimited",
+      "branch": "main"
+    },
+    {
+      "full_name": "ClickDevTech/CELERITY-panel",
+      "stars": 230,
+      "url": "https://github.com/ClickDevTech/CELERITY-panel",
+      "fetched_at": "2026-11-18",
+      "criteria": "stars-unlimited",
+      "branch": "main"
+    },
+    {
+      "full_name": "daimon3332/easy-proxies",
+      "stars": 216,
+      "url": "https://github.com/daimon3332/easy-proxies",
+      "fetched_at": "2026-11-04",
+      "criteria": "stars-unlimited",
+      "branch": "main"
+    },
+    {
+      "full_name": "kazeyukiro/3m-ui",
+      "stars": 199,
+      "url": "https://github.com/kazeyukiro/3m-ui",
+      "fetched_at": "2026-11-19",
+      "criteria": "stars-unlimited",
+      "branch": "main"
+    },
+    {
+      "full_name": "xyfqzy/free-nodes",
+      "stars": 198,
+      "url": "https://github.com/xyfqzy/free-nodes",
+      "fetched_at": "2026-11-19",
+      "criteria": "stars-unlimited",
+      "branch": "main"
+    },
+    {
+      "full_name": "imraywang/proxy-fleet",
+      "stars": 175,
+      "url": "https://github.com/imraywang/proxy-fleet",
+      "fetched_at": "2026-10-24",
+      "criteria": "stars-unlimited",
+      "branch": "main"
+    },
+    {
+      "full_name": "junjun266/FreeProxyGo",
+      "stars": 164,
+      "url": "https://github.com/junjun266/FreeProxyGo",
+      "fetched_at": "2026-11-19",
+      "criteria": "stars-unlimited",
+      "branch": "main"
+    },
+    {
+      "full_name": "eooce/Merge-sub",
+      "stars": 158,
+      "url": "https://github.com/eooce/Merge-sub",
+      "fetched_at": "2026-02-12",
+      "criteria": "stars-unlimited",
+      "branch": "main"
+    },
+    {
+      "full_name": "SnapdragonLee/SystemProxy",
+      "stars": 139,
+      "url": "https://github.com/SnapdragonLee/SystemProxy",
+      "fetched_at": "2026-11-19",
+      "criteria": "stars-unlimited",
+      "branch": "master"
+    },
+    {
+      "full_name": "Clashforwinodws/Clash-for-Winodows",
+      "stars": 132,
+      "url": "https://github.com/Clashforwinodws/Clash-for-Winodows",
+      "fetched_at": "2026-09-29",
+      "criteria": "stars-unlimited",
+      "branch": "main"
+    },
+    {
+      "full_name": "MHSanaei/3x-ui",
+      "stars": 50200,
+      "url": "https://github.com/MHSanaei/3x-ui",
+      "fetched_at": "2026-11-19",
+      "criteria": "stars-unlimited",
+      "branch": "main"
+    },
+    {
+      "full_name": "snakem982/proxypool",
+      "stars": 2286,
+      "url": "https://github.com/snakem982/proxypool",
+      "fetched_at": "2026-11-19",
+      "criteria": "stars-unlimited",
+      "branch": "main"
+    },
+    {
+      "full_name": "RayWangQvQ/sing-box-installer",
+      "stars": 367,
+      "url": "https://github.com/RayWangQvQ/sing-box-installer",
+      "fetched_at": "2025-06-08",
+      "criteria": "stars-unlimited",
+      "branch": "main"
+    },
+    {
+      "full_name": "crashgfw/free-airport-nodes",
+      "stars": 308,
+      "url": "https://github.com/crashgfw/free-airport-nodes",
+      "fetched_at": "2026-11-19",
       "criteria": "stars-unlimited",
       "branch": "main"
     }
