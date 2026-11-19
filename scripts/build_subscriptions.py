@@ -21,7 +21,8 @@
     <root>/probe/subscription-build-report.md
 
 设计要点：
-    1. 红线：只输出 type ∈ {hysteria, hysteria2, anytls} 的节点；其它协议过滤并在报告登记。
+    1. 红线：只输出 type ∈ {hysteria, hysteria2, anytls, tuic, vless, trojan, naive} 的节点；
+       其它协议过滤并在报告登记。VLESS Reality 仍是 vless 类型，靠 reality-opts 字段区分。
     2. 单格式：一份 Clash YAML 同时写到两个订阅路径，节点集合天然一致。
     3. 空输入（alive_nodes=[]）也产出合法空订阅（proxies=[] + 基础 group），不是坏文件。
     4. 本机无内核时只做结构校验（yaml.safe_load），不做内核级 -t，报告如实注明。
@@ -45,8 +46,8 @@ MAIN_PATH = os.path.join(PROJECT, "main.yaml")
 NEKO_PATH = os.path.join(PROJECT, "nekobox.json")
 REPORT_PATH = os.path.join(PROJECT, "probe", "subscription-build-report.md")
 
-# 红线：仅收三种优质协议
-ALLOWED_PROTOCOLS = ("hysteria", "hysteria2", "anytls")
+# 红线：仅收 7 种协议（VLESS Reality 仍归属 vless）
+ALLOWED_PROTOCOLS = ("hysteria", "hysteria2", "anytls", "tuic", "vless", "trojan", "naive")
 
 # hysteria v1 带宽占位默认值（非节点真实性数据，仅保证配置可用）
 DEFAULT_UP = "100 Mbps"
@@ -81,7 +82,7 @@ def filter_by_protocol(nodes: list[dict]) -> tuple[list[dict], list[dict]]:
                     "type": ntype or "(空)",
                     "server": str(node.get("server", "")),
                     "port": node.get("port"),
-                    "reason": "type 不在白名单 {hysteria,hysteria2,anytls}",
+                    "reason": "type 不在白名单 {hysteria,hysteria2,anytls,tuic,vless,trojan,naive}",
                 }
             )
     return kept, rejected
@@ -119,8 +120,22 @@ def _obfs_of(node: dict) -> str:
     return _first(node, "obfs", default="")
 
 
+def _alpn_of(node: dict) -> list[str]:
+    """alpn 兼容 list 与逗号分隔字符串两种来源。"""
+    v = node.get("alpn")
+    if isinstance(v, list):
+        return [str(x).strip() for x in v if str(x).strip()]
+    if isinstance(v, str):
+        return [x.strip() for x in v.split(",") if x.strip()]
+    return []
+
+
 def to_mihomo_proxy(node: dict, name: str) -> dict:
-    """把一个节点映射为 mihomo/Clash proxy（按协议分支，兼容字段别名）。"""
+    """把一个节点映射为 mihomo/Clash proxy（按协议分支，兼容字段别名）。
+
+    与 kernel_probe.to_mihomo_proxy 逐字一致：内核测活注入同一份字段，
+    字段错了测活就假。新增 tuic / vless(含 Reality+ws/grpc) / trojan / naive。
+    """
     ntype = str(node.get("type", "")).strip().lower()
     server = str(node.get("server", "")).strip()
     port = int(node.get("port", 443) or 443)
@@ -153,6 +168,99 @@ def to_mihomo_proxy(node: dict, name: str) -> dict:
         proxy["password"] = _first(node, "password", "auth", "auth_str")
         if sni:
             proxy["sni"] = sni
+        proxy["skip-cert-verify"] = skip
+
+    elif ntype == "tuic":
+        # TUIC v5：uuid + password；v4 token 仅在无 uuid 时兼容
+        uuid = _first(node, "uuid")
+        if uuid:
+            proxy["uuid"] = uuid
+            proxy["password"] = _first(node, "password", "auth")
+        else:
+            token = _first(node, "token")
+            if token:
+                proxy["token"] = token
+        if sni:
+            proxy["sni"] = sni
+        proxy["skip-cert-verify"] = skip
+        alpn = _alpn_of(node)
+        if alpn:
+            proxy["alpn"] = alpn
+        for k in ("congestion-controller", "udp-relay-mode", "disable-sni", "reduce-rtt"):
+            if k in node and node[k] not in (None, ""):
+                proxy[k] = node[k]
+
+    elif ntype == "vless":
+        proxy["uuid"] = _first(node, "uuid")
+        flow = _first(node, "flow")
+        if flow:
+            proxy["flow"] = flow
+        servername = _first(node, "servername", "sni", "host")
+        if servername:
+            proxy["servername"] = servername
+        proxy["skip-cert-verify"] = skip
+        proxy["tls"] = True
+        alpn = _alpn_of(node)
+        if alpn:
+            proxy["alpn"] = alpn
+        fp = _first(node, "client-fingerprint", "fingerprint")
+        if fp:
+            proxy["client-fingerprint"] = fp
+
+        # Reality：security=reality 或存在 public-key/pbk 即视为 Reality
+        pbk = _first(node, "public-key", "pbk")
+        sid = _first(node, "short-id", "sid")
+        if _first(node, "security").lower() == "reality" or pbk:
+            reality = {}
+            if pbk:
+                reality["public-key"] = pbk
+            if sid:
+                reality["short-id"] = sid
+            proxy["reality-opts"] = reality
+            proxy["tls"] = True
+
+        # 传输层：URI 的 type=ws/grpc 在 fetch 阶段已归一为 network
+        network = _first(node, "network").lower()
+        if network in ("ws", "grpc"):
+            proxy["network"] = network
+            if network == "ws":
+                ws_opts = {}
+                path = _first(node, "path")
+                host = _first(node, "host")
+                if path:
+                    ws_opts["path"] = path
+                if host:
+                    ws_opts["headers"] = {"Host": host}
+                if ws_opts:
+                    proxy["ws-opts"] = ws_opts
+            else:
+                grpc_opts = {}
+                svc = _first(node, "serviceName", "service-name", "grpc-service-name")
+                if svc:
+                    grpc_opts["grpc-service-name"] = svc
+                if grpc_opts:
+                    proxy["grpc-opts"] = grpc_opts
+
+    elif ntype == "trojan":
+        proxy["password"] = _first(node, "password", "auth")
+        if sni:
+            proxy["sni"] = sni
+        alpn = _alpn_of(node)
+        if alpn:
+            proxy["alpn"] = alpn
+        proxy["skip-cert-verify"] = skip
+        network = _first(node, "network")
+        if network:
+            proxy["network"] = network
+
+    elif ntype == "naive":
+        proxy["username"] = _first(node, "username", "user")
+        proxy["password"] = _first(node, "password", "auth")
+        if sni:
+            proxy["sni"] = sni
+        alpn = _alpn_of(node)
+        if alpn:
+            proxy["alpn"] = alpn
         proxy["skip-cert-verify"] = skip
 
     return proxy
@@ -238,8 +346,21 @@ def write_report(now: str, *, input_count: int, kept: list[dict], rejected: list
   单格式避免双份维护与格式不识别，两个订阅 URL 均保持可用、节点集合天然一致。
 
 ## 白名单过滤（红线）
-- 仅输出 type ∈ {{hysteria, hysteria2, anytls}}；其它协议过滤并登记：
+- 仅输出 type ∈ {{hysteria, hysteria2, anytls, tuic, vless, trojan, naive}}；其它协议过滤并登记：
 {rejected_lines}
+
+## 字段映射表（7 种协议 → mihomo/Clash.Meta）
+| 协议 | 关键字段 |
+|------|----------|
+| hysteria | auth / obfs / protocol(udp) / sni / skip-cert-verify / up / down |
+| hysteria2 | auth / obfs / sni / skip-cert-verify |
+| anytls | password / sni / skip-cert-verify |
+| tuic | uuid / password(v5) 或 token(v4) / alpn / sni / skip-cert-verify / congestion-controller / udp-relay-mode / disable-sni / reduce-rtt |
+| vless | uuid / flow / servername(sni) / tls:true / alpn / client-fingerprint / reality-opts(public-key,short-id) / ws-opts 或 grpc-opts |
+| trojan | password / sni / alpn / skip-cert-verify / network |
+| naive | username / password / sni / alpn / skip-cert-verify |
+- VLESS Reality 仍是 vless 类型，靠 `reality-opts` / `security=reality` 区分；URI 的 `type=ws/grpc` 归一为 `network`。
+- 与 `kernel_probe.to_mihomo_proxy` 逐字一致，保证内核测活注入字段与订阅一致。
 
 ## 结构校验（有据，附出处）
 - 两个订阅文件均以 `yaml.safe_load` 重解析（proxies/proxy-groups/rules 均为合法结构）：

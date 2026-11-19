@@ -340,8 +340,8 @@ def main() -> int:
     nodes = load_us_nodes()
     print(f"[U4] 输入节点 {len(nodes)} 个，读取自 {US_NODES_PATH}")
 
-    records: list[dict] = []
-    for idx, node in enumerate(nodes, 1):
+    # 并发探测：放宽协议后节点可达数百个，串行每节点最坏 ~8s 会超 CI 时限；12 并发压到几分钟。
+    def probe_one(idx: int, node: dict):
         server = str(node.get("server", ""))
         port = int(node.get("port", 443) or 443)
         addr, family, resolve_err = resolve_target(server)
@@ -351,9 +351,22 @@ def main() -> int:
         else:
             tcp = probe_tcp(addr, family, port)
             udp = probe_udp(addr, family, port)
-        verdict = decide(resolve_err, tcp, udp)
+        return idx, node, decide(resolve_err, tcp, udp), tcp, udp
 
-        rec = dict(node)  # 继承原节点全部字段（含 auth/sni/port/skip-cert-verify）
+    results: dict[int, tuple] = {}
+    workers = max(1, min(12, len(nodes) or 1))
+    with concurrent.futures.ThreadPoolExecutor(max_workers=workers) as ex:
+        futs = [ex.submit(probe_one, i, n) for i, n in enumerate(nodes)]
+        for fut in concurrent.futures.as_completed(futs):
+            idx, node, verdict, tcp, udp = fut.result()
+            results[idx] = (node, verdict, tcp, udp)
+            print(f"  [{idx+1}/{len(nodes)}] {node.get('server')}:{node.get('port')} -> "
+                  f"{verdict['alive']} ({verdict['evidence']})")
+
+    records: list[dict] = []
+    for idx in range(len(nodes)):  # 按原顺序，保证输出稳定可比对
+        node, verdict, tcp, udp = results[idx]
+        rec = dict(node)
         rec["_liveness"] = {
             "alive": verdict["alive"],
             "method": METHODS,
@@ -364,7 +377,6 @@ def main() -> int:
             "udp": udp,
         }
         records.append(rec)
-        print(f"  [{idx}/{len(nodes)}] {server}:{port} -> {verdict['alive']} ({verdict['evidence']})")
 
     env = proxy_env()
     out = write_alive_nodes(now, records, env)

@@ -6,8 +6,8 @@ U4+ 内核级真实测活（mihomo external-controller API）。
 与 liveness_check.py 的区别：
   - liveness_check.py：纯 Python TCP/UDP 端口探测（端口级，不能证明 hysteria2 握手成功）。
   - 本脚本：启动真正的 mihomo 内核，对每个节点调 /proxies/{name}/delay，
-            内核会完成 hysteria2/anytls 协议握手并通过代理发一个 HTTP 请求，
-            拿到 200/204 才算 alive（协议级证据）。
+            内核会完成 7 种协议（hysteria/hysteria2/anytls/tuic/vless/trojan/naive）握手
+            并通过代理发一个 HTTP 请求，拿到 200/204 才算 alive（协议级证据）。
 
 用法（CI 中下载内核后设置 MIHOMO_BIN）：
     MIHOMO_BIN=/path/to/mihomo python scripts/kernel_probe.py
@@ -49,7 +49,7 @@ TEST_URL = os.environ.get("MIHOMO_TEST_URL", "").strip() or "http://www.gstatic.
 TIMEOUT_MS = int(os.environ.get("MIHOMO_TIMEOUT", "8000") or 8000)
 VERSION_LABEL = os.environ.get("MIHOMO_VERSION", "").strip()
 
-GOOD_TYPES = {"hysteria", "hysteria2", "anytls"}
+GOOD_TYPES = {"hysteria", "hysteria2", "anytls", "tuic", "vless", "trojan", "naive"}
 DEFAULT_UP = "100 Mbps"
 DEFAULT_DOWN = "200 Mbps"
 BOOT_WAIT_SEC = 12
@@ -59,12 +59,31 @@ def utc_now_iso() -> str:
     return datetime.datetime.now(datetime.timezone.utc).isoformat(timespec="seconds")
 
 
-def first(node: dict, *keys: str, default: str = "") -> str:
+def _first(node: dict, *keys: str, default: str = "") -> str:
+    """按 keys 顺序取第一个非空字符串值（与 build_subscriptions._first 一致）。"""
     for k in keys:
         v = node.get(k)
         if v is not None and str(v).strip() != "":
             return str(v).strip()
     return default
+
+
+def _obfs_of(node: dict) -> str:
+    return _first(node, "obfs", default="")
+
+
+def _alpn_of(node: dict) -> list[str]:
+    """alpn 兼容 list 与逗号分隔字符串两种来源。"""
+    v = node.get("alpn")
+    if isinstance(v, list):
+        return [str(x).strip() for x in v if str(x).strip()]
+    if isinstance(v, str):
+        return [x.strip() for x in v.split(",") if x.strip()]
+    return []
+
+
+# 兼容旧调用方（原 first() 与 _first 等价）
+first = _first
 
 
 def free_port() -> int:
@@ -76,38 +95,139 @@ def free_port() -> int:
 
 
 def to_mihomo_proxy(node: dict, name: str) -> dict:
-    """把统一节点结构映射为 mihomo proxy（与 build_subscriptions.to_mihomo_proxy 一致）。"""
-    t = str(node.get("type", "")).strip().lower()
+    """把一个节点映射为 mihomo/Clash proxy（按协议分支，兼容字段别名）。
+
+    与 build_subscriptions.to_mihomo_proxy 逐字一致：内核测活注入同一份字段，
+    字段错了测活就假。新增 tuic / vless(含 Reality+ws/grpc) / trojan / naive。
+    """
+    ntype = str(node.get("type", "")).strip().lower()
     server = str(node.get("server", "")).strip()
     port = int(node.get("port", 443) or 443)
-    sni = first(node, "sni", "server_name", "host")
+    sni = _first(node, "sni", "server_name", "host", default="")
     skip = bool(node.get("skip-cert-verify", True))
-    obfs = first(node, "obfs")
+    obfs = _obfs_of(node)
 
-    p: dict = {"name": name, "type": t, "server": server, "port": port}
-    if t == "hysteria2":
-        p["auth"] = first(node, "auth", "password", "auth_str")
+    proxy: dict = {"name": name, "type": ntype, "server": server, "port": port}
+
+    if ntype == "hysteria2":
+        proxy["auth"] = _first(node, "auth", "password", "auth_str")
         if sni:
-            p["sni"] = sni
-        p["skip-cert-verify"] = skip
+            proxy["sni"] = sni
+        proxy["skip-cert-verify"] = skip
         if obfs:
-            p["obfs"] = obfs
-    elif t == "hysteria":
-        p["auth"] = first(node, "auth", "auth_str", "password")
+            proxy["obfs"] = obfs
+
+    elif ntype == "hysteria":
+        proxy["auth"] = _first(node, "auth", "auth_str", "password")
         if obfs:
-            p["obfs"] = obfs
-        p["protocol"] = first(node, "protocol", default="udp")
+            proxy["obfs"] = obfs
+        proxy["protocol"] = _first(node, "protocol", default="udp")
         if sni:
-            p["sni"] = sni
-        p["skip-cert-verify"] = skip
-        p["up"] = first(node, "up", default=DEFAULT_UP)
-        p["down"] = first(node, "down", default=DEFAULT_DOWN)
-    elif t == "anytls":
-        p["password"] = first(node, "password", "auth", "auth_str")
+            proxy["sni"] = sni
+        proxy["skip-cert-verify"] = skip
+        proxy["up"] = _first(node, "up", default=DEFAULT_UP)
+        proxy["down"] = _first(node, "down", default=DEFAULT_DOWN)
+
+    elif ntype == "anytls":
+        proxy["password"] = _first(node, "password", "auth", "auth_str")
         if sni:
-            p["sni"] = sni
-        p["skip-cert-verify"] = skip
-    return p
+            proxy["sni"] = sni
+        proxy["skip-cert-verify"] = skip
+
+    elif ntype == "tuic":
+        # TUIC v5：uuid + password；v4 token 仅在无 uuid 时兼容
+        uuid = _first(node, "uuid")
+        if uuid:
+            proxy["uuid"] = uuid
+            proxy["password"] = _first(node, "password", "auth")
+        else:
+            token = _first(node, "token")
+            if token:
+                proxy["token"] = token
+        if sni:
+            proxy["sni"] = sni
+        proxy["skip-cert-verify"] = skip
+        alpn = _alpn_of(node)
+        if alpn:
+            proxy["alpn"] = alpn
+        for k in ("congestion-controller", "udp-relay-mode", "disable-sni", "reduce-rtt"):
+            if k in node and node[k] not in (None, ""):
+                proxy[k] = node[k]
+
+    elif ntype == "vless":
+        proxy["uuid"] = _first(node, "uuid")
+        flow = _first(node, "flow")
+        if flow:
+            proxy["flow"] = flow
+        servername = _first(node, "servername", "sni", "host")
+        if servername:
+            proxy["servername"] = servername
+        proxy["skip-cert-verify"] = skip
+        proxy["tls"] = True
+        alpn = _alpn_of(node)
+        if alpn:
+            proxy["alpn"] = alpn
+        fp = _first(node, "client-fingerprint", "fingerprint")
+        if fp:
+            proxy["client-fingerprint"] = fp
+
+        # Reality：security=reality 或存在 public-key/pbk 即视为 Reality
+        pbk = _first(node, "public-key", "pbk")
+        sid = _first(node, "short-id", "sid")
+        if _first(node, "security").lower() == "reality" or pbk:
+            reality = {}
+            if pbk:
+                reality["public-key"] = pbk
+            if sid:
+                reality["short-id"] = sid
+            proxy["reality-opts"] = reality
+            proxy["tls"] = True
+
+        # 传输层：URI 的 type=ws/grpc 在 fetch 阶段已归一为 network
+        network = _first(node, "network").lower()
+        if network in ("ws", "grpc"):
+            proxy["network"] = network
+            if network == "ws":
+                ws_opts = {}
+                path = _first(node, "path")
+                host = _first(node, "host")
+                if path:
+                    ws_opts["path"] = path
+                if host:
+                    ws_opts["headers"] = {"Host": host}
+                if ws_opts:
+                    proxy["ws-opts"] = ws_opts
+            else:
+                grpc_opts = {}
+                svc = _first(node, "serviceName", "service-name", "grpc-service-name")
+                if svc:
+                    grpc_opts["grpc-service-name"] = svc
+                if grpc_opts:
+                    proxy["grpc-opts"] = grpc_opts
+
+    elif ntype == "trojan":
+        proxy["password"] = _first(node, "password", "auth")
+        if sni:
+            proxy["sni"] = sni
+        alpn = _alpn_of(node)
+        if alpn:
+            proxy["alpn"] = alpn
+        proxy["skip-cert-verify"] = skip
+        network = _first(node, "network")
+        if network:
+            proxy["network"] = network
+
+    elif ntype == "naive":
+        proxy["username"] = _first(node, "username", "user")
+        proxy["password"] = _first(node, "password", "auth")
+        if sni:
+            proxy["sni"] = sni
+        alpn = _alpn_of(node)
+        if alpn:
+            proxy["alpn"] = alpn
+        proxy["skip-cert-verify"] = skip
+
+    return proxy
 
 
 def build_config(nodes: list[dict], controller_port: int, workdir: str) -> str:
@@ -152,7 +272,7 @@ def proxy_delay(port: int, name: str) -> tuple[int | None, str]:
         d = json.loads(body)
         delay = d.get("delay")
         if isinstance(delay, (int, float)) and delay >= 0:
-            return int(delay), f"内核协议级测活通过：hysteria2/anytls 握手 + HTTP {TEST_URL} 返回 200/204，延迟 {int(delay)}ms"
+            return int(delay), f"内核协议级测活通过：协议握手 + HTTP {TEST_URL} 返回 200/204，延迟 {int(delay)}ms"
         return None, f"内核返回无有效 delay：{body[:200]}"
     except Exception as e:
         return None, f"内核测活失败：{type(e).__name__}: {e}"
@@ -186,10 +306,27 @@ def main() -> int:
             if not wait_controller(port, proc):
                 print("[kernel-probe] mihomo external-controller 未就绪 → 返回码 2（降级）", file=sys.stderr)
                 return 2
-            records: list[dict] = []
-            for idx, node in enumerate(nodes):
+            # 并发测活：放宽协议后节点可达数百个，串行会超过 CI 时限；8 并发把它压到几分钟。
+            import concurrent.futures
+            workers = max(1, min(8, len(nodes) or 1))
+
+            def probe_one(idx: int, node: dict):
                 name = f"K{idx}"
                 delay, detail = proxy_delay(port, name)
+                return idx, node, delay, detail
+
+            results: dict[int, tuple] = {}
+            with concurrent.futures.ThreadPoolExecutor(max_workers=workers) as ex:
+                futs = [ex.submit(probe_one, i, n) for i, n in enumerate(nodes)]
+                for fut in concurrent.futures.as_completed(futs):
+                    idx, node, delay, detail = fut.result()
+                    results[idx] = (node, delay, detail)
+                    print(f"  [{idx+1}/{len(nodes)}] {node.get('server')}:{node.get('port')} -> "
+                          f"{'alive' if delay is not None else 'dead'} ({delay if delay is not None else '-'}ms)")
+
+            records: list[dict] = []
+            for idx in range(len(nodes)):  # 按原顺序输出，保证与配置里 K{i} 对齐
+                node, delay, detail = results[idx]
                 rec = dict(node)
                 alive = delay is not None
                 rec["_liveness"] = {
@@ -205,8 +342,6 @@ def main() -> int:
                     "kernel_delay_ms": delay,
                 }
                 records.append(rec)
-                print(f"  [{idx+1}/{len(nodes)}] {node.get('server')}:{node.get('port')} -> "
-                      f"{'alive' if alive else 'dead'} ({delay if delay is not None else '-'}ms)")
         finally:
             if proc.poll() is None:
                 proc.terminate()
@@ -226,7 +361,7 @@ def main() -> int:
             "version": VERSION_LABEL or "unknown",
             "test_url": TEST_URL,
             "timeout_ms": TIMEOUT_MS,
-            "decision": "内核完成 hysteria2/anytls 握手且 HTTP 200/204 → alive；否则 dead（协议级负向）。",
+            "decision": "内核完成 7 种协议握手且 HTTP 200/204 → alive；否则 dead（协议级负向）。",
         },
         "environment": {"kernel_mode": True},
         "input_node_count": len(records),
@@ -255,7 +390,7 @@ def main() -> int:
         lines.append(f"| {idx} | `{r.get('server')}:{r.get('port')}` | {lv['alive']} | "
                      f"{lv['latency_ms'] if lv['latency_ms'] is not None else '-'} | {lv['reason']} |")
     lines += ["", "## 说明", "",
-              "- 本报告为**协议级**测活：内核真实完成 hysteria2/anytls 握手并经代理发起 HTTP 请求，",
+              "- 本报告为**协议级**测活：内核真实完成所选协议握手并经代理发起 HTTP 请求，",
               "  比端口级 TCP/UDP 探测可靠得多；alive 的节点经客户端导入理应可用。",
               "- 国内用户仍可能受本地网络/GFW 影响，最终以客户端实测为准。", ""]
     os.makedirs(os.path.dirname(REPORT_PATH), exist_ok=True)

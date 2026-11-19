@@ -89,6 +89,16 @@ jobs:
           # 会因条件为假返回退出码 1，被 GitHub 误判为步骤失败（2026-11-20 CI 实测踩坑）。
           exit 0
 
+      # 动态补充来源仓库（star 不限）：每天最多新增 N 个，已存在的按 full_name 去重不会重复加。
+      # 发现失败/限流不阻断主流程；token 只在内存用。
+      - name: Discover
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -uo pipefail
+          python scripts/discover_sources.py --max-new 15 || echo "::warning::source discovery failed; continue with existing sources"
+          exit 0
+
       # 抓取阶段用 GITHUB_TOKEN 提额到 5000/h（token 只在内存用，经 env 注入，不落盘）。
       - name: Collect
         env:
@@ -142,7 +152,7 @@ jobs:
           TS="$(date -u +'%Y-%m-%dT%H:%M:%SZ')"
           git config user.name  "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add main.yaml nekobox.json probe/geoip-report.md probe/liveness-report.md probe/subscription-build-report.md
+          git add main.yaml nekobox.json sources.json probe/geoip-report.md probe/liveness-report.md probe/subscription-build-report.md probe/discover-report.md
           if git diff --cached --quiet; then
             echo "No changes to publish; skipping commit"
           else

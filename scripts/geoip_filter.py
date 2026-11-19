@@ -39,7 +39,7 @@ PROJECT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # mmdb 路径可用环境变量 GEOIP_MMDB 覆盖（GitHub Actions 内下载到 CI 路径后设置），
 # 未设置时回退到本机开发路径，保证本地复跑行为不变。
 MMDB = os.environ.get("GEOIP_MMDB", "").strip() or r"D:/AI/2026-09-16-02-16-43/clash-nodes/kernel-test/Country.mmdb"
-GOOD_TYPES = {"hysteria", "hysteria2", "anytls"}
+GOOD_TYPES = {"hysteria", "hysteria2", "anytls", "tuic", "vless", "trojan", "naive"}
 DNS_TIMEOUT = 4  # 单域名解析最长等待秒数；本机代理下曾卡死，必须设限
 FQDN_RE = re.compile(
     r"^(?=.{1,253}$)(?:[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?\.)+[A-Za-z]{2,63}$"
@@ -279,7 +279,7 @@ def main() -> int:
         R_NON_US: "mmdb 命中但国家码非 US",
         R_UNKNOWN: "DNS失败/超时、URI碎片假域名、私有保留段、mmdb非标准ISO码",
         R_INVALID: "URL 编码垃圾 / 空 server，解码后仍非合法 hostname/IP",
-        R_BAD_PROTO: "type 不在 hysteria/hysteria2/anytls 白名单",
+        R_BAD_PROTO: f"type 不在 {'/'.join(sorted(GOOD_TYPES))} 白名单",
     }
     lines = [
         "# U3 GeoIP / 美国判定报告", "",
@@ -340,7 +340,7 @@ def main() -> int:
         "- README URI 解析出的碎片假 hostname（如 `23c82941`/`150`/`linlin`/"
         "`c3a8753e`/`vpn`/`srv`）不是合法域名，不做 DNS 解析，按 unknown 排除。",
         "- URL 含 `%XX` 的 server 先 `urllib.parse.unquote`；解码后仍非合法 hostname/IP 判 invalid_server。",
-        "- 入选红线：`cc == \"US\"` 且 `type ∈ {hysteria, hysteria2, anytls}`。", "",
+        f"- 入选红线：`cc == \"US\"` 且 `type ∈ {{{', '.join(sorted(GOOD_TYPES))}}}`。", "",
         f"产出：`us_nodes.json`（US 节点 {len(us_nodes)}）+ 本报告。",
     ]
     report_path = os.path.join(PROJECT, "probe", "geoip-report.md")

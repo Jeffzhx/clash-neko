@@ -27,7 +27,7 @@ GitHub Actions 中需先安装依赖再运行：
   - 文件优先级：订阅/节点文件优先，README 最后（避免 README 挤占订阅文件名额）。
   - 解析复用 probe/u1_probe.py 已验证的 try_b64（直接 import）与同一套 URI 正则，
     扩展为统一节点结构：type / server / port / 协议专有字段(原始 proxy dict 原样保留) / _src / _file。
-  - 只保留优质协议 hysteria / hysteria2 / anytls（红线）。
+  - 只保留优质协议 hysteria / hysteria2 / anytls / tuic / vless / trojan / naive（红线，7 种）。
   - 不做 GeoIP / 美国判定，server 原样保留；cc / cc_basis 留空占位供 U3 填充。
   - 产出 <root>/nodes_raw.json。
 """
@@ -60,7 +60,7 @@ if _PROBE_DIR not in sys.path:
     sys.path.insert(0, _PROBE_DIR)
 from u1_probe import try_b64  # noqa: E402
 
-GOOD_TYPES = {"hysteria", "hysteria2", "anytls"}
+GOOD_TYPES = {"hysteria", "hysteria2", "anytls", "tuic", "vless", "trojan", "naive"}
 UA = "clash-us-sub-fetcher/2.0"
 MAX_RETRY = 10
 TIMEOUT = 10
@@ -72,8 +72,14 @@ MAX_BYTES = 300000
 SUB_PREFER = re.compile(r"(subscription|sub/|sub\.|all\.txt|node|proxy|clash|hysteria|anytls|\.ya?ml$|\.json$)", re.I)
 README_RE = re.compile(r"(^|/)readme", re.I)
 CFG_RE = re.compile(r"\.(ya?ml|json|txt|md)$", re.I)
-# 与 u1_probe.py 一致的 URI 正则（复用已验证逻辑）
-URI_RE = re.compile(r"\b(hysteria2|hysteria|hy2|anytls)://([^\s\"'\-]+)", re.I)
+# URI 正则：原 hysteria/hy2/anytls 之外扩展 tuic / vless / trojan / naive(+https/+http)。
+# 注意：字符类不再排除 '-'，否则 VLESS/TUIC 的 UUID（形如 aaaa-bbbb-...）会被截断。
+# naive+https / naive+http 必须排在 naive 之前，否则 alternation 先命中 naive 而漏掉 '+' 形式。
+# 与 u1_probe.py 的 try_b64 解码路径保持一致，仅 URI 协议集合按本项目白名单扩展。
+URI_RE = re.compile(
+    r"\b(naive\+https|naive\+http|hysteria2|hysteria|hy2|anytls|tuic|vless|trojan|naive)://([^\s\"']+)",
+    re.I,
+)
 
 TOKEN = os.environ.get("GITHUB_TOKEN", "").strip()
 API_CALLS = 0
@@ -267,28 +273,77 @@ def _extract_port(port_val, hostport: str = ""):
     return ""
 
 
-def _uri_extras(raw: str) -> dict:
-    """从 hysteria/hy2/anytls URI 提取协议专有字段，供 U5 组配置用。"""
+def _uri_extras(raw: str, t: str = "") -> dict:
+    """从 7 种协议 URI 提取专有字段，供组配置用。
+
+    userinfo 语义按协议区分：
+      - vless / tuic：uuid:password（VLESS 密码常为空，则只取 uuid；TUIC v5 用 uuid+password）
+      - naive      ：username:password
+      - trojan     ：单个 password
+      - hysteria/hy2/anytls：单个 auth（保持原行为不回归）
+    query 参数统一小写归一后按白名单提取。
+    """
     extras: dict = {}
     userinfo = ""
     if "@" in raw:
         userinfo, raw = raw.rsplit("@", 1)
+    userinfo = urllib.parse.unquote(userinfo)
     if userinfo:
-        extras["auth"] = urllib.parse.unquote(userinfo)
+        if t in ("vless", "tuic"):
+            if ":" in userinfo:
+                uuid, pwd = userinfo.split(":", 1)
+                extras["uuid"] = urllib.parse.unquote(uuid)
+                if pwd:
+                    extras["password"] = urllib.parse.unquote(pwd)
+            else:
+                extras["uuid"] = userinfo
+            # TUIC v4 兼容：userinfo 为纯 token（无冒号）时按 uuid 存，token 由 query 覆盖
+        elif t == "naive":
+            if ":" in userinfo:
+                user, pwd = userinfo.split(":", 1)
+                extras["username"] = urllib.parse.unquote(user)
+                extras["password"] = urllib.parse.unquote(pwd)
+            else:
+                extras["username"] = userinfo
+        elif t == "trojan":
+            extras["password"] = userinfo
+        else:
+            extras["auth"] = userinfo
+
     if "?" in raw:
         qs = raw.split("?", 1)[1].split("#", 1)[0]
-        allow = {"obfs", "obfs-password", "sni", "alpn", "insecure", "skip-cert-verify",
-                 "auth", "password", "up", "down", "ports"}
+        # 全部小写归一；别名（public-key/pbk、short-id/sid、servername/sni/host）由下游 _first 兼容
+        allow = {
+            # hysteria / hysteria2 / anytls（原有）
+            "obfs", "obfs-password", "sni", "alpn", "insecure", "skip-cert-verify",
+            "auth", "password", "up", "down", "ports",
+            # vless / reality
+            "uuid", "flow", "security", "pbk", "public-key", "sid", "short-id",
+            "servername", "type", "host", "path", "client-fingerprint",  # type → network（见下方分支）
+            # tuic
+            "congestion-controller", "disable-sni", "reduce-rtt", "token",
+            # trojan / naive
+            "username",
+        }
         for k, v in urllib.parse.parse_qsl(qs, keep_blank_values=True):
             key = k.lower()
             if key not in allow:
                 continue
-            if key == "insecure":
+            if key in ("insecure", "skip-cert-verify"):
                 extras["skip-cert-verify"] = v.lower() in ("1", "true", "yes")
-            elif key == "password":
-                extras["auth"] = urllib.parse.unquote(v)
             elif key == "alpn":
                 extras["alpn"] = [x for x in v.split(",") if x]
+            elif key in ("disable-sni", "reduce-rtt"):
+                extras[key] = v.lower() in ("1", "true", "yes")
+            elif key == "password":
+                # 对 hysteria 系保持原语义（password → auth）；其余协议用 password
+                if t in ("hysteria", "hysteria2", "anytls"):
+                    extras["auth"] = urllib.parse.unquote(v)
+                else:
+                    extras["password"] = urllib.parse.unquote(v)
+            elif key == "type":
+                # query 的 type=ws/grpc 是传输层，存为 network，避免覆盖节点协议 type
+                extras["network"] = urllib.parse.unquote(v)
             else:
                 extras[key] = urllib.parse.unquote(v)
     return extras
@@ -327,7 +382,10 @@ def parse_nodes_ext(text: str) -> list:
 
     for m in URI_RE.finditer(text):
         t = m.group(1).lower()
-        t = "hysteria2" if t in ("hy2", "hysteria2") else t
+        if t in ("hy2", "hysteria2"):
+            t = "hysteria2"
+        elif t.startswith("naive"):  # naive / naive+https / naive+http 统一为 naive
+            t = "naive"
         if t not in GOOD_TYPES:
             continue
         raw = m.group(2)
@@ -345,7 +403,7 @@ def parse_nodes_ext(text: str) -> list:
         if not server:
             continue
         node = {"type": t, "server": server, "port": _extract_port(None, hostpart)}
-        node.update(_uri_extras(raw))
+        node.update(_uri_extras(raw, t))
         nodes.append(node)
 
     # 按 (type, server, port) 去重（同一节点可能同时出现在 yaml 与 URI 中）
