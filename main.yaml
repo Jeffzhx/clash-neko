@@ -1,10 +1,33 @@
-proxies: []
+proxies:
+- name: US-hysteria2-206.189.229.48-443
+  type: hysteria2
+  server: 206.189.229.48
+  port: 443
+  auth: YV1sd3tfCZngTtnvRmy7
+  sni: www.microsoft.com
+  skip-cert-verify: true
+- name: US-hysteria2-34.24.25.1-443
+  type: hysteria2
+  server: 34.24.25.1
+  port: 443
+  auth: 8dOHZ13sx33R1/PQbhTK/w==
+  sni: bing.com
+  skip-cert-verify: true
+- name: US-hysteria2-66.94.121.46-443
+  type: hysteria2
+  server: 66.94.121.46
+  port: 443
+  auth: gf1:gfhysteria2024
+  skip-cert-verify: true
 proxy-groups:
 - name: PROXY
   type: select
   proxies:
   - DIRECT
   - REJECT
+  - US-hysteria2-206.189.229.48-443
+  - US-hysteria2-34.24.25.1-443
+  - US-hysteria2-66.94.121.46-443
 rules:
 - GEOIP,private,DIRECT,no-resolve
 - MATCH,PROXY
