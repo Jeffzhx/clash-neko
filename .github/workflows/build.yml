@@ -213,3 +213,11 @@ jobs:
 
           git push origin "$COMMIT:refs/heads/gh-pages"
           echo "Published to ${GITHUB_REPOSITORY}@gh-pages (${COMMIT:0:8})"
+
+          # 刷新 jsDelivr 缓存：否则 @gh-pages 会缓存旧版订阅（用户看到几百个旧节点）。
+          # 内容未变的跳过分支上面已 exit，不会走到这里；发布成功才 purge。
+          for f in main.yaml nekobox.json; do
+            curl -fsSL --max-time 30 "https://purge.jsdelivr.net/gh/${GITHUB_REPOSITORY}@gh-pages/${f}" \
+              && echo "purged ${f}" \
+              || echo "::warning::purge ${f} failed; CDN may serve stale copy for a while"
+          done
