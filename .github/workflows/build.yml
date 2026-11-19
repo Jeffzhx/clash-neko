@@ -82,7 +82,12 @@ jobs:
               break
             fi
           done
-          [ "$ok" -eq 0 ] && echo "::warning::mihomo download failed; liveness will fall back to port-level TCP/UDP"
+          if [ "$ok" -eq 0 ]; then
+            echo "::warning::mihomo download failed; liveness will fall back to port-level TCP/UDP"
+          fi
+          # 必须显式 exit 0：下载成功时 ok=1，若最后一条命令是 `[ ok -eq 0 ] && echo`
+          # 会因条件为假返回退出码 1，被 GitHub 误判为步骤失败（2026-11-20 CI 实测踩坑）。
+          exit 0
 
       # 抓取阶段用 GITHUB_TOKEN 提额到 5000/h（token 只在内存用，经 env 注入，不落盘）。
       - name: Fetch nodes from low-star repos
