@@ -1,0 +1,302 @@
+{
+  "generated_at": "2026-11-19T20:46:18+00:00",
+  "count": 38,
+  "repos": [
+    {
+      "full_name": "rekt0ro/ProxyRift",
+      "stars": 6,
+      "url": "https://github.com/rekt0ro/ProxyRift",
+      "fetched_at": "2026-11-19",
+      "criteria": "stars<100"
+    },
+    {
+      "full_name": "nodesradar/nodesradar-en",
+      "stars": 29,
+      "url": "https://github.com/nodesradar/nodesradar-en",
+      "fetched_at": "2026-11-19",
+      "criteria": "stars<100"
+    },
+    {
+      "full_name": "nodesradar/nodesradar-es",
+      "stars": 1,
+      "url": "https://github.com/nodesradar/nodesradar-es",
+      "fetched_at": "2026-11-19",
+      "criteria": "stars<100"
+    },
+    {
+      "full_name": "nodesradar/nodesradar-ru",
+      "stars": 1,
+      "url": "https://github.com/nodesradar/nodesradar-ru",
+      "fetched_at": "2026-11-19",
+      "criteria": "stars<100"
+    },
+    {
+      "full_name": "fmw86/free-proxy-pool",
+      "stars": 9,
+      "url": "https://github.com/fmw86/free-proxy-pool",
+      "fetched_at": "2026-11-19",
+      "criteria": "stars<100"
+    },
+    {
+      "full_name": "cmahmud/proxies",
+      "stars": 3,
+      "url": "https://github.com/cmahmud/proxies",
+      "fetched_at": "2026-11-19",
+      "criteria": "stars<100"
+    },
+    {
+      "full_name": "Edsel-Rahimi/Ariston",
+      "stars": 7,
+      "url": "https://github.com/Edsel-Rahimi/Ariston",
+      "fetched_at": "2026-11-19",
+      "criteria": "stars<100"
+    },
+    {
+      "full_name": "bushilian/bushilian",
+      "stars": 1,
+      "url": "https://github.com/bushilian/bushilian",
+      "fetched_at": "2026-11-19",
+      "criteria": "stars<100"
+    },
+    {
+      "full_name": "bia-pain-bache/BPB-Worker-Panel",
+      "stars": 13900,
+      "url": "https://github.com/bia-pain-bache/BPB-Worker-Panel",
+      "fetched_at": "2026-07-20",
+      "criteria": "stars-unlimited",
+      "branch": "main"
+    },
+    {
+      "full_name": "VPN-Subcription-Links/ClashX-V2Ray-TopFreeProxy",
+      "stars": 5764,
+      "url": "https://github.com/VPN-Subcription-Links/ClashX-V2Ray-TopFreeProxy",
+      "fetched_at": "2026-11-19",
+      "criteria": "stars-unlimited",
+      "branch": "main"
+    },
+    {
+      "full_name": "Resinat/Resin",
+      "stars": 2563,
+      "url": "https://github.com/Resinat/Resin",
+      "fetched_at": "2026-11-18",
+      "criteria": "stars-unlimited",
+      "branch": "master"
+    },
+    {
+      "full_name": "crossxx-labs/free-proxy",
+      "stars": 1874,
+      "url": "https://github.com/crossxx-labs/free-proxy",
+      "fetched_at": "2026-11-19",
+      "criteria": "stars-unlimited",
+      "branch": "main"
+    },
+    {
+      "full_name": "ZeroDeng01/sublinkPro",
+      "stars": 1756,
+      "url": "https://github.com/ZeroDeng01/sublinkPro",
+      "fetched_at": "2026-11-17",
+      "criteria": "stars-unlimited",
+      "branch": "main"
+    },
+    {
+      "full_name": "Au1rxx/free-vpn-subscriptions",
+      "stars": 1149,
+      "url": "https://github.com/Au1rxx/free-vpn-subscriptions",
+      "fetched_at": "2026-10-30",
+      "criteria": "stars-unlimited",
+      "branch": "main"
+    },
+    {
+      "full_name": "SubBoost/subboost",
+      "stars": 1091,
+      "url": "https://github.com/SubBoost/subboost",
+      "fetched_at": "2026-11-17",
+      "criteria": "stars-unlimited",
+      "branch": "main"
+    },
+    {
+      "full_name": "Aethersailor/SubConverter-Extended",
+      "stars": 1073,
+      "url": "https://github.com/Aethersailor/SubConverter-Extended",
+      "fetched_at": "2026-11-16",
+      "criteria": "stars-unlimited",
+      "branch": "master"
+    },
+    {
+      "full_name": "mapleafgo/singcast",
+      "stars": 1040,
+      "url": "https://github.com/mapleafgo/singcast",
+      "fetched_at": "2026-10-13",
+      "criteria": "stars-unlimited",
+      "branch": "singcast"
+    },
+    {
+      "full_name": "xinggaoya/sing-box-windows",
+      "stars": 914,
+      "url": "https://github.com/xinggaoya/sing-box-windows",
+      "fetched_at": "2026-11-09",
+      "criteria": "stars-unlimited",
+      "branch": "master"
+    },
+    {
+      "full_name": "xmwengxing/CFPilot",
+      "stars": 722,
+      "url": "https://github.com/xmwengxing/CFPilot",
+      "fetched_at": "2026-11-19",
+      "criteria": "stars-unlimited",
+      "branch": "main"
+    },
+    {
+      "full_name": "sunmiao4458/free-proxy-airport",
+      "stars": 631,
+      "url": "https://github.com/sunmiao4458/free-proxy-airport",
+      "fetched_at": "2026-11-19",
+      "criteria": "stars-unlimited",
+      "branch": "main"
+    },
+    {
+      "full_name": "frank-vpl/IRBox",
+      "stars": 558,
+      "url": "https://github.com/frank-vpl/IRBox",
+      "fetched_at": "2026-02-18",
+      "criteria": "stars-unlimited",
+      "branch": "master"
+    },
+    {
+      "full_name": "zhuhaiuk/free-nodes",
+      "stars": 454,
+      "url": "https://github.com/zhuhaiuk/free-nodes",
+      "fetched_at": "2026-11-19",
+      "criteria": "stars-unlimited",
+      "branch": "main"
+    },
+    {
+      "full_name": "itsyebekhe/PSG",
+      "stars": 450,
+      "url": "https://github.com/itsyebekhe/PSG",
+      "fetched_at": "2026-11-19",
+      "criteria": "stars-unlimited",
+      "branch": "main"
+    },
+    {
+      "full_name": "Mahdi0024/ProxyCollector",
+      "stars": 331,
+      "url": "https://github.com/Mahdi0024/ProxyCollector",
+      "fetched_at": "2026-11-19",
+      "criteria": "stars-unlimited",
+      "branch": "master"
+    },
+    {
+      "full_name": "F0rc3Run/F0rc3Run",
+      "stars": 326,
+      "url": "https://github.com/F0rc3Run/F0rc3Run",
+      "fetched_at": "2026-11-19",
+      "criteria": "stars-unlimited",
+      "branch": "main"
+    },
+    {
+      "full_name": "lonelam/subconverter-rs",
+      "stars": 325,
+      "url": "https://github.com/lonelam/subconverter-rs",
+      "fetched_at": "2026-09-01",
+      "criteria": "stars-unlimited",
+      "branch": "main"
+    },
+    {
+      "full_name": "realchendahuang/sub-store-cloudflare",
+      "stars": 317,
+      "url": "https://github.com/realchendahuang/sub-store-cloudflare",
+      "fetched_at": "2026-10-31",
+      "criteria": "stars-unlimited",
+      "branch": "main"
+    },
+    {
+      "full_name": "shenaba/2s-ui",
+      "stars": 296,
+      "url": "https://github.com/shenaba/2s-ui",
+      "fetched_at": "2026-11-19",
+      "criteria": "stars-unlimited",
+      "branch": "main"
+    },
+    {
+      "full_name": "CaddyGlow/ccproxy-api",
+      "stars": 279,
+      "url": "https://github.com/CaddyGlow/ccproxy-api",
+      "fetched_at": "2026-10-07",
+      "criteria": "stars-unlimited",
+      "branch": "main"
+    },
+    {
+      "full_name": "Pawdroid/Free-servers",
+      "stars": 19978,
+      "url": "https://github.com/Pawdroid/Free-servers",
+      "fetched_at": "2026-11-19",
+      "criteria": "stars-unlimited",
+      "branch": "main"
+    },
+    {
+      "full_name": "tindy2013/subconverter",
+      "stars": 17123,
+      "url": "https://github.com/tindy2013/subconverter",
+      "fetched_at": "2026-07-09",
+      "criteria": "stars-unlimited",
+      "branch": "master"
+    },
+    {
+      "full_name": "sub-store-org/Sub-Store",
+      "stars": 10946,
+      "url": "https://github.com/sub-store-org/Sub-Store",
+      "fetched_at": "2026-11-19",
+      "criteria": "stars-unlimited",
+      "branch": "master"
+    },
+    {
+      "full_name": "vvbbnn00/WARP-Clash-API",
+      "stars": 8795,
+      "url": "https://github.com/vvbbnn00/WARP-Clash-API",
+      "fetched_at": "2024-09-04",
+      "criteria": "stars-unlimited",
+      "branch": "master"
+    },
+    {
+      "full_name": "7Sageer/sublink-worker",
+      "stars": 5601,
+      "url": "https://github.com/7Sageer/sublink-worker",
+      "fetched_at": "2026-11-18",
+      "criteria": "stars-unlimited",
+      "branch": "main"
+    },
+    {
+      "full_name": "0xRadikal/Free-v2ray-Configs",
+      "stars": 910,
+      "url": "https://github.com/0xRadikal/Free-v2ray-Configs",
+      "fetched_at": "2026-11-19",
+      "criteria": "stars-unlimited",
+      "branch": "main"
+    },
+    {
+      "full_name": "xiaoji235/airport-free",
+      "stars": 556,
+      "url": "https://github.com/xiaoji235/airport-free",
+      "fetched_at": "2026-09-23",
+      "criteria": "stars-unlimited",
+      "branch": "main"
+    },
+    {
+      "full_name": "mermeroo/V2RAY-CLASH-BASE64-Subscription.Links",
+      "stars": 528,
+      "url": "https://github.com/mermeroo/V2RAY-CLASH-BASE64-Subscription.Links",
+      "fetched_at": "2026-11-09",
+      "criteria": "stars-unlimited",
+      "branch": "main"
+    },
+    {
+      "full_name": "kanshurichard/GoHomeEasy",
+      "stars": 476,
+      "url": "https://github.com/kanshurichard/GoHomeEasy",
+      "fetched_at": "2025-12-14",
+      "criteria": "stars-unlimited",
+      "branch": "main"
+    }
+  ]
+}
