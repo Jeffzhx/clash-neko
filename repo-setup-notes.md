@@ -41,8 +41,9 @@ __pycache__/
 ## 第 5 步：jsDelivr 验证
 
 - 产物 push 后访问：
-  - `https://cdn.jsdelivr.net/gh/Jeffzhx/clash-neko@main/main.yaml`
-  - `https://cdn.jsdelivr.net/gh/Jeffzhx/clash-neko@main/nekobox.json`
+  - `https://cdn.jsdelivr.net/gh/Jeffzhx/clash-neko@gh-pages/main.yaml`
+  - `https://cdn.jsdelivr.net/gh/Jeffzhx/clash-neko@gh-pages/nekobox.json`
+- **双分支（2026-11-20 改）**：源码在 `main`、产物在 `gh-pages`。订阅地址必须用 `@gh-pages`（不是 `@main`）——`main` 不再含产物。首次 CI push 后才会创建 gh-pages 分支，届时上述地址才可用。
 - 首次可能有几分钟 CDN 缓存延迟；可在 URL 后加 `?t=时间戳` 强制刷新。
 - 在 Clash Verge / NekoBox 中导入对应地址验证解析（当前为空订阅属正常，见下）。
 - **单格式说明（2026-11-20 改）**：两个地址现在都是同一份 Clash YAML 内容；`nekobox.json` 只是文件名沿用，内容是 Clash（NekoBox 导入订阅按内容嗅探、不认 sing-box JSON）。两个地址都能导入，节点集合完全一致。

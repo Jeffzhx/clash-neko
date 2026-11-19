@@ -1,11 +1,12 @@
 name: Daily Sync
 
-# 单仓方案：源码与产物都在 Jeffzhx/clash-neko（公开仓）。
-# 每天定时抓取 GitHub 低星源的美国优质节点，生成双格式订阅并就地提交到本仓 main，
-# 由 jsDelivr 分发。也可在 Actions 页手动触发。
+# 双分支方案：源码在 main，产物在 gh-pages（公开仓 Jeffzhx/clash-neko）。
+# 每天定时任务在 main 上生成产物，最后只 push 到 gh-pages 分支——main 永不被机器人写入，
+# 避免本地改代码 push 时与 CI 产物提交冲突。jsDelivr 走 @gh-pages 分发。
+# on.push 只监听 main：产物 push 到 gh-pages 不会触发本 workflow（无循环）。
 on:
   push:
-    branches: [main]      # 推送到 main 时自动重建订阅
+    branches: [main]      # 源码推送到 main 时自动重建
   schedule:
     - cron: '0 3 * * *'   # 每天 03:00 UTC（北京时间 11:00）
   workflow_dispatch:      # 手动触发
@@ -29,6 +30,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           persist-credentials: true
+          fetch-depth: 0   # 全量历史：Publish 需切换/创建 gh-pages 分支并保留其历史
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -89,6 +91,25 @@ jobs:
           # 会因条件为假返回退出码 1，被 GitHub 误判为步骤失败（2026-11-20 CI 实测踩坑）。
           exit 0
 
+      # 从产物分支恢复上次累积的 sources.json（双分支后源码 main 不保存它）。
+      # 若 gh-pages 尚不存在（首次运行），保留 main 上的初始 sources.json 作为种子。
+      - name: Restore state
+        run: |
+          set -uo pipefail
+          # 显式 fetch gh-pages 远程跟踪 ref（checkout@v4 只保证当前分支，不保证其它分支 ref 存在）
+          git fetch origin gh-pages 2>/dev/null || echo "no gh-pages branch yet (first run)"
+          if git show-ref --verify --quiet refs/remotes/origin/gh-pages; then
+            if git cat-file -e origin/gh-pages:sources.json 2>/dev/null; then
+              git show origin/gh-pages:sources.json > sources.json
+              echo "restored sources.json from gh-pages"
+            else
+              echo "gh-pages has no sources.json yet; keep seed from main"
+            fi
+          else
+            echo "gh-pages branch not found; keep seed from main (first run)"
+          fi
+          python -c "import json; d=json.load(open('sources.json')); print('sources:', d.get('count', len(d.get('repos', []))))"
+
       # 动态补充来源仓库（star 不限）：每天最多新增 N 个，已存在的按 full_name 去重不会重复加。
       # 发现失败/限流不阻断主流程；token 只在内存用。
       - name: Discover
@@ -147,19 +168,48 @@ jobs:
           print(f'validated: proxies={len(y["proxies"])} (single format, both addresses identical)')
           PY
 
-      # 单仓就地提交： commit message 带时间戳头部；无变化则跳过，避免空提交。
-      # 用内置 GITHUB_TOKEN（checkout 已 persist），无需 PUBLISH_TOKEN。
+      # 产物发布到 gh-pages 分支（main 永不写入）。用临时 index + commit-tree 构建提交，
+      # 不切换工作区（切换会丢弃上面生成的未提交产物），且保留 gh-pages 历史。
+      # [skip ci] + on.push 只监听 main：双重保证 gh-pages 的 push 不会触发新 run。
       - name: Publish
         run: |
           set -euo pipefail
           TS="$(date -u +'%Y-%m-%dT%H:%M:%SZ')"
           git config user.name  "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add main.yaml nekobox.json sources.json probe/geoip-report.md probe/liveness-report.md probe/subscription-build-report.md probe/discover-report.md
-          if git diff --cached --quiet; then
-            echo "No changes to publish; skipping commit"
+
+          export GIT_INDEX_FILE="$RUNNER_TEMP/ghpages.index"
+          rm -f "$GIT_INDEX_FILE"
+
+          # 刷新 gh-pages 远程 ref，基于最新 tip 构建（避免 non-fast-forward）
+          git fetch origin gh-pages 2>/dev/null || true
+
+          # 以现有 gh-pages tip 为基（首次则空树），保留历史
+          if git show-ref --verify --quiet refs/remotes/origin/gh-pages; then
+            git read-tree origin/gh-pages
+            PARENT="$(git rev-parse origin/gh-pages)"
           else
-            git commit -m "[auto ${TS}] daily subscription update [skip ci]"
-            git push origin "HEAD:${GITHUB_REF_NAME}"
-            echo "Published to ${GITHUB_REPOSITORY}@${GITHUB_REF_NAME}"
+            git read-tree --empty
+            PARENT=""
           fi
+
+          # 只把产物加入 gh-pages 的 index
+          git add main.yaml nekobox.json sources.json probe/geoip-report.md probe/liveness-report.md probe/subscription-build-report.md probe/discover-report.md
+          TREE="$(git write-tree)"
+
+          # 与上次内容相同则跳过（避免空提交）
+          if [ -n "$PARENT" ] && [ "$(git rev-parse "$PARENT^{tree}")" = "$TREE" ]; then
+            echo "No changes to publish; skipping"
+            unset GIT_INDEX_FILE
+            exit 0
+          fi
+
+          if [ -n "$PARENT" ]; then
+            COMMIT="$(git commit-tree "$TREE" -p "$PARENT" -m "[auto ${TS}] data sync [skip ci]")"
+          else
+            COMMIT="$(git commit-tree "$TREE" -m "[auto ${TS}] data sync [skip ci]")"
+          fi
+          unset GIT_INDEX_FILE
+
+          git push origin "$COMMIT:refs/heads/gh-pages"
+          echo "Published to ${GITHUB_REPOSITORY}@gh-pages (${COMMIT:0:8})"
