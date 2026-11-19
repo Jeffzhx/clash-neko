@@ -257,6 +257,54 @@ def build_config(nodes: list[dict], controller_port: int, workdir: str) -> str:
     return path
 
 
+def precheck_config(nodes: list[dict], workdir: str) -> tuple[list[dict], list[dict]]:
+    """用内核 `-t` 预校验配置，自动剔除会让内核 fatal 的坏节点（如非法 Reality 公钥）。
+
+    背景：单个非法字段（如 invalid REALITY public key）会让 mihomo 拒绝整个配置，
+    导致所有节点都无法测活。内核 fatal 信息形如 `proxy 321: invalid ...`，
+    其中 321 是 proxies 数组下标，正好对应这里 K321。逐个剔除并重验，直到配置通过。
+
+    返回 (干净节点列表, 被剔除节点列表)。无法解析错误或达上限时停止剔除（保留剩余节点）。
+    """
+    import re
+    import yaml
+
+    MAX_DROP = 30
+    clean = list(nodes)
+    dropped: list[dict] = []
+    fatal_re = re.compile(r"proxy\s+(\d+)\s*:", re.I)
+
+    for _ in range(MAX_DROP):
+        if not clean:
+            break
+        cfg = build_config(clean, 19999, workdir)  # 端口无关，-t 只校验不监听
+        try:
+            r = subprocess.run(
+                [MIHOMO_BIN, "-t", "-f", cfg, "-d", workdir],
+                capture_output=True, text=True, timeout=20,
+            )
+        except Exception:
+            break  # 内核执行异常→不剔除，交给后续启动逻辑处理
+        if r.returncode == 0:
+            break  # 配置合法
+        m = fatal_re.search((r.stdout or "") + (r.stderr or ""))
+        if not m:
+            break  # 无法定位坏节点→停止剔除
+        idx = int(m.group(1))
+        if idx < 0 or idx >= len(clean):
+            break
+        dropped.append(clean[idx])
+        server = clean[idx].get("server", "?")
+        print(f"[kernel-probe] 预校验剔除坏节点 K{idx} ({server}): "
+              f"{(r.stdout + r.stderr).splitlines()[-1][:120]}", file=sys.stderr)
+        clean.pop(idx)
+
+    if dropped:
+        print(f"[kernel-probe] 预校验共剔除 {len(dropped)} 个非法节点，剩余 {len(clean)} 个进入测活",
+              file=sys.stderr)
+    return clean, dropped
+
+
 def wait_controller(port: int, proc: subprocess.Popen, deadline: int = BOOT_WAIT_SEC) -> bool:
     url = f"http://127.0.0.1:{port}/version"
     end = time.time() + deadline
@@ -307,6 +355,9 @@ def main() -> int:
     print(f"[kernel-probe] 开始 {now}；内核={MIHOMO_BIN}；节点 {len(nodes)} 个；测试URL={TEST_URL}")
 
     with tempfile.TemporaryDirectory(prefix="kernel-probe-") as workdir:
+        # 预校验：先用内核 -t 剔除会让配置 fatal 的坏节点（如非法 Reality 公钥），
+        # 否则单个坏节点拖垮整个配置、全部无法测活。被剔除的节点不进测活、也不进最终订阅。
+        nodes, dropped = precheck_config(nodes, workdir)
         port = free_port()
         cfg = build_config(nodes, port, workdir)
         # 内核日志写到文件而不是丢弃：启动失败时能打印出来定位（CI 上曾因 DEVNULL 看不到原因）。
@@ -395,7 +446,7 @@ def main() -> int:
             "timeout_ms": TIMEOUT_MS,
             "decision": "内核完成 7 种协议握手且 HTTP 200/204 → alive；否则 dead（协议级负向）。",
         },
-        "environment": {"kernel_mode": True},
+        "environment": {"kernel_mode": True, "precheck_dropped": len(dropped)},
         "input_node_count": len(records),
         "alive_count": len(alive),
         "unknown_count": len(unknown),
@@ -412,7 +463,8 @@ def main() -> int:
         f"- 生成时间：{now}",
         f"- 引擎：mihomo external-controller `/proxies/{{name}}/delay`（内核 {VERSION_LABEL or 'unknown'}）",
         f"- 测活 URL：`{TEST_URL}`；单节点超时 {TIMEOUT_MS}ms",
-        f"- 判定：alive {len(alive)} / dead {len(dead)} / unknown {len(unknown)}", "",
+        f"- 判定：alive {len(alive)} / dead {len(dead)} / unknown {len(unknown)}",
+        f"- 预校验剔除非法节点：{len(dropped)}（内核 -t 检出的坏字段节点，不进测活也不进订阅）", "",
         "## 逐节点（server:port / 判定 / 延迟 / 依据）", "",
         "| # | server:port | 判定 | 延迟(ms) | 依据 |",
         "|---|-------------|------|----------|------|",
