@@ -6,7 +6,7 @@ U4+ 内核级真实测活（mihomo external-controller API）。
 与 liveness_check.py 的区别：
   - liveness_check.py：纯 Python TCP/UDP 端口探测（端口级，不能证明 hysteria2 握手成功）。
   - 本脚本：启动真正的 mihomo 内核，对每个节点调 /proxies/{name}/delay，
-            内核会完成 7 种协议（hysteria/hysteria2/anytls/tuic/vless/trojan/naive）握手
+            内核会完成 6 种协议（hysteria/hysteria2/anytls/tuic/vless/trojan）握手；naive 因 mihomo 不支持已移除
             并通过代理发一个 HTTP 请求，拿到 200/204 才算 alive（协议级证据）。
 
 用法（CI 中下载内核后设置 MIHOMO_BIN）：
@@ -49,7 +49,7 @@ TEST_URL = os.environ.get("MIHOMO_TEST_URL", "").strip() or "http://www.gstatic.
 TIMEOUT_MS = int(os.environ.get("MIHOMO_TIMEOUT", "8000") or 8000)
 VERSION_LABEL = os.environ.get("MIHOMO_VERSION", "").strip()
 
-GOOD_TYPES = {"hysteria", "hysteria2", "anytls", "tuic", "vless", "trojan", "naive"}
+GOOD_TYPES = {"hysteria", "hysteria2", "anytls", "tuic", "vless", "trojan"}  # naive 已移除：mihomo 内核不支持
 DEFAULT_UP = "100 Mbps"
 DEFAULT_DOWN = "200 Mbps"
 BOOT_WAIT_SEC = 12
@@ -98,7 +98,7 @@ def to_mihomo_proxy(node: dict, name: str) -> dict:
     """把一个节点映射为 mihomo/Clash proxy（按协议分支，兼容字段别名）。
 
     与 build_subscriptions.to_mihomo_proxy 逐字一致：内核测活注入同一份字段，
-    字段错了测活就假。新增 tuic / vless(含 Reality+ws/grpc) / trojan / naive。
+    字段错了测活就假。支持 tuic / vless(含 Reality+ws/grpc) / trojan（naive 分支保留兼容但白名单已移除）。
     """
     ntype = str(node.get("type", "")).strip().lower()
     server = str(node.get("server", "")).strip()

@@ -21,7 +21,7 @@
     <root>/probe/subscription-build-report.md
 
 设计要点：
-    1. 红线：只输出 type ∈ {hysteria, hysteria2, anytls, tuic, vless, trojan, naive} 的节点；
+    1. 红线：只输出 type ∈ {hysteria, hysteria2, anytls, tuic, vless, trojan} 的节点（6 种；naive 已被移除因 mihomo 内核不支持）；
        其它协议过滤并在报告登记。VLESS Reality 仍是 vless 类型，靠 reality-opts 字段区分。
     2. 单格式：一份 Clash YAML 同时写到两个订阅路径，节点集合天然一致。
     3. 空输入（alive_nodes=[]）也产出合法空订阅（proxies=[] + 基础 group），不是坏文件。
@@ -47,7 +47,7 @@ NEKO_PATH = os.path.join(PROJECT, "nekobox.json")
 REPORT_PATH = os.path.join(PROJECT, "probe", "subscription-build-report.md")
 
 # 红线：仅收 7 种协议（VLESS Reality 仍归属 vless）
-ALLOWED_PROTOCOLS = ("hysteria", "hysteria2", "anytls", "tuic", "vless", "trojan", "naive")
+ALLOWED_PROTOCOLS = ("hysteria", "hysteria2", "anytls", "tuic", "vless", "trojan")  # naive 已移除：mihomo 内核不支持
 
 # hysteria v1 带宽占位默认值（非节点真实性数据，仅保证配置可用）
 DEFAULT_UP = "100 Mbps"
@@ -82,7 +82,7 @@ def filter_by_protocol(nodes: list[dict]) -> tuple[list[dict], list[dict]]:
                     "type": ntype or "(空)",
                     "server": str(node.get("server", "")),
                     "port": node.get("port"),
-                    "reason": "type 不在白名单 {hysteria,hysteria2,anytls,tuic,vless,trojan,naive}",
+                    "reason": "type 不在白名单 {hysteria,hysteria2,anytls,tuic,vless,trojan}",
                 }
             )
     return kept, rejected
@@ -134,7 +134,7 @@ def to_mihomo_proxy(node: dict, name: str) -> dict:
     """把一个节点映射为 mihomo/Clash proxy（按协议分支，兼容字段别名）。
 
     与 kernel_probe.to_mihomo_proxy 逐字一致：内核测活注入同一份字段，
-    字段错了测活就假。新增 tuic / vless(含 Reality+ws/grpc) / trojan / naive。
+    字段错了测活就假。支持 tuic / vless(含 Reality+ws/grpc) / trojan（naive 分支保留兼容但白名单已移除）。
     """
     ntype = str(node.get("type", "")).strip().lower()
     server = str(node.get("server", "")).strip()
@@ -346,7 +346,7 @@ def write_report(now: str, *, input_count: int, kept: list[dict], rejected: list
   单格式避免双份维护与格式不识别，两个订阅 URL 均保持可用、节点集合天然一致。
 
 ## 白名单过滤（红线）
-- 仅输出 type ∈ {{hysteria, hysteria2, anytls, tuic, vless, trojan, naive}}；其它协议过滤并登记：
+- 仅输出 type ∈ {{hysteria, hysteria2, anytls, tuic, vless, trojan}}（6 种）；其它协议过滤并登记：
 {rejected_lines}
 
 ## 字段映射表（7 种协议 → mihomo/Clash.Meta）

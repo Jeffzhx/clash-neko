@@ -27,7 +27,7 @@ GitHub Actions 中需先安装依赖再运行：
   - 文件优先级：订阅/节点文件优先，README 最后（避免 README 挤占订阅文件名额）。
   - 解析复用 probe/u1_probe.py 已验证的 try_b64（直接 import）与同一套 URI 正则，
     扩展为统一节点结构：type / server / port / 协议专有字段(原始 proxy dict 原样保留) / _src / _file。
-  - 只保留优质协议 hysteria / hysteria2 / anytls / tuic / vless / trojan / naive（红线，7 种）。
+  - 只保留优质协议 hysteria / hysteria2 / anytls / tuic / vless / trojan（红线，6 种；naive 因 mihomo 内核不支持已移除）。
   - 不做 GeoIP / 美国判定，server 原样保留；cc / cc_basis 留空占位供 U3 填充。
   - 产出 <root>/nodes_raw.json。
 """
@@ -60,7 +60,7 @@ if _PROBE_DIR not in sys.path:
     sys.path.insert(0, _PROBE_DIR)
 from u1_probe import try_b64  # noqa: E402
 
-GOOD_TYPES = {"hysteria", "hysteria2", "anytls", "tuic", "vless", "trojan", "naive"}
+GOOD_TYPES = {"hysteria", "hysteria2", "anytls", "tuic", "vless", "trojan"}  # naive 已移除：mihomo 内核不支持
 UA = "clash-us-sub-fetcher/2.0"
 MAX_RETRY = 10
 TIMEOUT = 10

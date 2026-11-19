@@ -39,7 +39,7 @@ PROJECT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # mmdb 路径可用环境变量 GEOIP_MMDB 覆盖（GitHub Actions 内下载到 CI 路径后设置），
 # 未设置时回退到本机开发路径，保证本地复跑行为不变。
 MMDB = os.environ.get("GEOIP_MMDB", "").strip() or r"D:/AI/2026-09-16-02-16-43/clash-nodes/kernel-test/Country.mmdb"
-GOOD_TYPES = {"hysteria", "hysteria2", "anytls", "tuic", "vless", "trojan", "naive"}
+GOOD_TYPES = {"hysteria", "hysteria2", "anytls", "tuic", "vless", "trojan"}  # naive 已移除：mihomo 内核不支持
 DNS_TIMEOUT = 4  # 单域名解析最长等待秒数；本机代理下曾卡死，必须设限
 FQDN_RE = re.compile(
     r"^(?=.{1,253}$)(?:[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?\.)+[A-Za-z]{2,63}$"
