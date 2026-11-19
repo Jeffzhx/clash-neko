@@ -1,0 +1,14 @@
+# 长跑状态与本地记忆（非项目产物，不入库）
+.handoff/
+.longrun/
+.workbuddy-ai/
+
+# 缓存与编译产物
+.cache/
+__pycache__/
+*.pyc
+
+# 流水线中间产物（CI 每次重新生成，不入库）
+nodes_raw.json
+us_nodes.json
+alive_nodes.json

@@ -1,0 +1,26 @@
+{
+  "outbounds": [
+    {
+      "type": "direct",
+      "tag": "direct"
+    },
+    {
+      "type": "block",
+      "tag": "block"
+    }
+  ],
+  "dns": {
+    "servers": [
+      {
+        "tag": "dns-local",
+        "type": "udp",
+        "server": "223.5.5.5"
+      }
+    ],
+    "rules": []
+  },
+  "route": {
+    "rules": [],
+    "default": "direct"
+  }
+}

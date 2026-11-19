@@ -1,0 +1,62 @@
+{
+  "generated_at": "2026-11-19T14:43:37+00:00",
+  "count": 8,
+  "repos": [
+    {
+      "full_name": "rekt0ro/ProxyRift",
+      "stars": 6,
+      "url": "https://github.com/rekt0ro/ProxyRift",
+      "fetched_at": "2026-11-19",
+      "criteria": "stars<100"
+    },
+    {
+      "full_name": "nodesradar/nodesradar-en",
+      "stars": 29,
+      "url": "https://github.com/nodesradar/nodesradar-en",
+      "fetched_at": "2026-11-19",
+      "criteria": "stars<100"
+    },
+    {
+      "full_name": "nodesradar/nodesradar-es",
+      "stars": 1,
+      "url": "https://github.com/nodesradar/nodesradar-es",
+      "fetched_at": "2026-11-19",
+      "criteria": "stars<100"
+    },
+    {
+      "full_name": "nodesradar/nodesradar-ru",
+      "stars": 1,
+      "url": "https://github.com/nodesradar/nodesradar-ru",
+      "fetched_at": "2026-11-19",
+      "criteria": "stars<100"
+    },
+    {
+      "full_name": "fmw86/free-proxy-pool",
+      "stars": 9,
+      "url": "https://github.com/fmw86/free-proxy-pool",
+      "fetched_at": "2026-11-19",
+      "criteria": "stars<100"
+    },
+    {
+      "full_name": "cmahmud/proxies",
+      "stars": 3,
+      "url": "https://github.com/cmahmud/proxies",
+      "fetched_at": "2026-11-19",
+      "criteria": "stars<100"
+    },
+    {
+      "full_name": "Edsel-Rahimi/Ariston",
+      "stars": 7,
+      "url": "https://github.com/Edsel-Rahimi/Ariston",
+      "fetched_at": "2026-11-19",
+      "criteria": "stars<100"
+    },
+    {
+      "full_name": "bushilian/bushilian",
+      "stars": 1,
+      "url": "https://github.com/bushilian/bushilian",
+      "fetched_at": "2026-11-19",
+      "criteria": "stars<100"
+    }
+  ]
+}

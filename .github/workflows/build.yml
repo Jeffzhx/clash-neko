@@ -1,0 +1,110 @@
+name: Daily build US hysteria subscription
+
+# 单仓方案：源码与产物都在 Jeffzhx/clash-neko（公开仓）。
+# 每天定时抓取 GitHub 低星源的美国优质节点，生成双格式订阅并就地提交到本仓 main，
+# 由 jsDelivr 分发。也可在 Actions 页手动触发。
+on:
+  schedule:
+    - cron: '0 3 * * *'   # 每天 03:00 UTC（北京时间 11:00）
+  workflow_dispatch:      # 手动触发
+
+# 就地 push 需要写权限；内置 GITHUB_TOKEN 即可，无需自建 PAT。
+permissions:
+  contents: write
+
+# 防止卡住的探测拖垮整次运行；单步内的网络动作另有硬超时。
+timeout-minutes: 25
+concurrency:
+  group: daily-subscription-build
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      # persist-credentials 默认 true：把 GITHUB_TOKEN 写入本地 git 配置，最后的 push 才能用。
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pyyaml maxminddb
+
+      # geoip_filter.py 的 mmdb 路径由 GEOIP_MMDB 覆盖（未设时回退本机 D: 路径，仅本地用）。
+      # GeoLite2-Country 官方站需 license key，默认用公开镜像；可在仓库 Variables 里设 MMDB_URL 覆盖。
+      - name: Download GeoIP mmdb
+        run: |
+          set -euo pipefail
+          URL="${{ vars.MMDB_URL }}"
+          if [ -z "$URL" ]; then
+            URL="https://raw.githubusercontent.com/P3TERX/GeoLite.mmdb/download/GeoLite2-Country.mmdb"
+          fi
+          echo "Downloading mmdb from mirror..."
+          for i in 1 2 3; do
+            if curl -fsSL --retry 2 --max-time 120 "$URL" -o "$RUNNER_TEMP/Country.mmdb"; then
+              echo "mmdb downloaded (try $i)"
+              break
+            fi
+            [ "$i" -eq 3 ] && { echo "mmdb download failed after 3 tries" >&2; exit 1; }
+            sleep 10
+          done
+          ls -l "$RUNNER_TEMP/Country.mmdb"
+          echo "GEOIP_MMDB=$RUNNER_TEMP/Country.mmdb" >> "$GITHUB_ENV"
+
+      # 抓取阶段用 GITHUB_TOKEN 提额到 5000/h（token 只在内存用，经 env 注入，不落盘）。
+      - name: Fetch nodes from low-star repos
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: python scripts/fetch_sources.py
+
+      # GeoIP / 美国判定（GEOIP_MMDB 由上一步注入）
+      - name: GeoIP US filter
+        run: python scripts/geoip_filter.py
+
+      # 测活（境外 runner 直连，TCP/UDP 探测；全失败按红线生成空列表）
+      - name: Liveness check
+        run: python scripts/liveness_check.py
+
+      # 双格式订阅输出（同一批节点，main.yaml + nekobox.json）
+      - name: Build subscriptions
+        run: python scripts/build_subscriptions.py
+
+      # 校验产物结构后再提交，避免把坏文件推上去
+      - name: Validate outputs
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json, yaml
+          with open('main.yaml', encoding='utf-8') as f:
+              y = yaml.safe_load(f)
+          with open('nekobox.json', encoding='utf-8') as f:
+              j = json.load(f)
+          assert isinstance(y, dict) and isinstance(y.get('proxies'), list), 'main.yaml bad'
+          assert isinstance(j, dict) and isinstance(j.get('outbounds'), list), 'nekobox.json bad'
+          print(f'validated: mihomo proxies={len(y["proxies"])}, sing-box outbounds={len(j["outbounds"])}')
+          PY
+
+      # 单仓就地提交： commit message 带时间戳头部；无变化则跳过，避免空提交。
+      # 用内置 GITHUB_TOKEN（checkout 已 persist），无需 PUBLISH_TOKEN。
+      - name: Commit & push subscriptions
+        run: |
+          set -euo pipefail
+          TS="$(date -u +'%Y-%m-%dT%H:%M:%SZ')"
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add main.yaml nekobox.json probe/geoip-report.md probe/liveness-report.md probe/subscription-build-report.md
+          if git diff --cached --quiet; then
+            echo "No changes to publish; skipping commit"
+          else
+            git commit -m "[auto ${TS}] daily subscription update"
+            git push origin "HEAD:${GITHUB_REF_NAME}"
+            echo "Published to ${GITHUB_REPOSITORY}@${GITHUB_REF_NAME}"
+          fi
