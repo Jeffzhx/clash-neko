@@ -1,6 +1,6 @@
 # 源发现报告（discover_sources.py）
 
-- 时间戳(UTC)：2026-11-19T21:38:51+00:00
+- 时间戳(UTC)：2026-11-20T10:44:01+00:00
 - 运行模式：WRITE（已写回 sources.json）
 - 鉴权：GITHUB_TOKEN(Bearer)（token 值不记录）
 - 接口：https://api.github.com/search/repositories
@@ -13,13 +13,13 @@
 
 | # | 实际 q | 状态 | total_count | 返回条数 | 错误/限流 |
 |---|--------|------|-------------|----------|-----------|
-| 1 | `proxy subscription stars:>=1` | OK | 684 | 30 | - |
-| 2 | `clash subscription stars:>=1` | OK | 265 | 30 | - |
+| 1 | `proxy subscription stars:>=1` | OK | 687 | 30 | - |
+| 2 | `clash subscription stars:>=1` | OK | 267 | 30 | - |
 | 3 | `hysteria2 nodes stars:>=1` | OK | 65 | 30 | - |
 | 4 | `free proxy stars:>=1` | OK | 2443 | 30 | - |
 | 5 | `nodeshare stars:>=1` | OK | 9 | 9 | - |
-| 6 | `订阅 节点 stars:>=1` | OK | 901 | 30 | - |
-| 7 | `v2ray subscription stars:>=1` | OK | 288 | 30 | - |
+| 6 | `订阅 节点 stars:>=1` | OK | 903 | 30 | - |
+| 7 | `v2ray subscription stars:>=1` | OK | 290 | 30 | - |
 | 8 | `clash proxy nodes stars:>=1` | OK | 88 | 30 | - |
 
 ## 统计
@@ -28,29 +28,29 @@
 - 原始结果条数（各查询合计，未去重）：219
 - 关键词过滤掉（非代理/订阅）：33
 - star < 1 过滤掉：0
-- 已在 sources.json 中（去重跳过）：61
-- 本批次内重复（去重跳过）：11
-- 达 --max-new 上限跳过：99（上限 15）
+- 已在 sources.json 中（去重跳过）：87
+- 本批次内重复（去重跳过）：1
+- 达 --max-new 上限跳过：83（上限 15）
 - 本次新增：15
-- 合并后总数：53（原 38）
+- 合并后总数：68（原 53）
 
 ## 新增源清单
 
-- SubConv/SubConv ★414 | branch=main | fetched_at=2026-11-19 | https://github.com/SubConv/SubConv
-- KJGX66F/FreeNodePanel ★383 | branch=main | fetched_at=2026-11-05 | https://github.com/KJGX66F/FreeNodePanel
-- ClickDevTech/CELERITY-panel ★230 | branch=main | fetched_at=2026-11-18 | https://github.com/ClickDevTech/CELERITY-panel
-- daimon3332/easy-proxies ★216 | branch=main | fetched_at=2026-11-04 | https://github.com/daimon3332/easy-proxies
-- kazeyukiro/3m-ui ★199 | branch=main | fetched_at=2026-11-19 | https://github.com/kazeyukiro/3m-ui
-- xyfqzy/free-nodes ★198 | branch=main | fetched_at=2026-11-19 | https://github.com/xyfqzy/free-nodes
-- imraywang/proxy-fleet ★175 | branch=main | fetched_at=2026-10-24 | https://github.com/imraywang/proxy-fleet
-- junjun266/FreeProxyGo ★164 | branch=main | fetched_at=2026-11-19 | https://github.com/junjun266/FreeProxyGo
-- eooce/Merge-sub ★158 | branch=main | fetched_at=2026-02-12 | https://github.com/eooce/Merge-sub
-- SnapdragonLee/SystemProxy ★139 | branch=master | fetched_at=2026-11-19 | https://github.com/SnapdragonLee/SystemProxy
-- Clashforwinodws/Clash-for-Winodows ★132 | branch=main | fetched_at=2026-09-29 | https://github.com/Clashforwinodws/Clash-for-Winodows
-- MHSanaei/3x-ui ★50200 | branch=main | fetched_at=2026-11-19 | https://github.com/MHSanaei/3x-ui
-- snakem982/proxypool ★2286 | branch=main | fetched_at=2026-11-19 | https://github.com/snakem982/proxypool
-- RayWangQvQ/sing-box-installer ★367 | branch=main | fetched_at=2025-06-08 | https://github.com/RayWangQvQ/sing-box-installer
-- crashgfw/free-airport-nodes ★308 | branch=main | fetched_at=2026-11-19 | https://github.com/crashgfw/free-airport-nodes
+- eylandoo/openvpn_webpanel_manager ★297 | branch=main | fetched_at=2026-10-13 | https://github.com/eylandoo/openvpn_webpanel_manager
+- Ptechgithub/sing-box ★166 | branch=main | fetched_at=2024-11-09 | https://github.com/Ptechgithub/sing-box
+- rtwo2/FastNodes ★108 | branch=main | fetched_at=2026-11-20 | https://github.com/rtwo2/FastNodes
+- VoroninaYanina/free-nodes ★107 | branch=main | fetched_at=2026-11-20 | https://github.com/VoroninaYanina/free-nodes
+- cwash797-cmd/WASL ★59 | branch=main | fetched_at=2026-10-15 | https://github.com/cwash797-cmd/WASL
+- LeilaoMi/AutoMergePublicNodes-Optimized ★49 | branch=main | fetched_at=2026-11-20 | https://github.com/LeilaoMi/AutoMergePublicNodes-Optimized
+- icecompany-tech/iceslab ★49 | branch=main | fetched_at=2026-11-10 | https://github.com/icecompany-tech/iceslab
+- RomanovCaesar/m-ui ★47 | branch=main | fetched_at=2026-11-15 | https://github.com/RomanovCaesar/m-ui
+- free-proxy-nodes/free-nodes ★41 | branch=main | fetched_at=2026-11-20 | https://github.com/free-proxy-nodes/free-nodes
+- NOVA-X-PANEL/NOVA-X-PANEL ★41 | branch=main | fetched_at=2026-11-19 | https://github.com/NOVA-X-PANEL/NOVA-X-PANEL
+- vevc/node-xah ★40 | branch=main | fetched_at=2025-10-24 | https://github.com/vevc/node-xah
+- Con-Benksl/v-swift ★31 | branch=main | fetched_at=2026-10-03 | https://github.com/Con-Benksl/v-swift
+- liuarui/onebox ★31 | branch=main | fetched_at=2026-11-20 | https://github.com/liuarui/onebox
+- jytt8u/Marvia ★28 | branch=main | fetched_at=2026-10-29 | https://github.com/jytt8u/Marvia
+- SIPC/H2O ★22 | branch=master | fetched_at=2026-06-16 | https://github.com/SIPC/H2O
 
 ## 错误 / 限流
 

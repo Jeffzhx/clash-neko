@@ -1,27 +1,19 @@
 proxies:
-- name: US-trojan-167.88.61.85-443
+- name: US-trojan-167.88.61.193-443
   type: trojan
-  server: 167.88.61.85
+  server: 167.88.61.193
   port: 443
   password: 0ab6c98dae3b48e8b9c4a776b6c9c19a
-  sni: resources.browseseniorrolesandenhanceyourcareertoday.com
+  sni: browseseniorrolesandenhanceyourcareertoday.com
   skip-cert-verify: true
   network: tcp
-- name: US-trojan-216.152.156.212-443
+- name: US-trojan-169.197.140.171-443
   type: trojan
-  server: 216.152.156.212
+  server: 169.197.140.171
   port: 443
   password: 0ab6c98dae3b48e8b9c4a776b6c9c19a
-  sni: courses.healthcarejobshubenhancemedicalprofessionalskillstoday.com
-  skip-cert-verify: true
-  network: tcp
-- name: US-trojan-66.163.122.30-443
-  type: trojan
-  server: 66.163.122.30
-  port: 443
-  password: 0ab6c98dae3b48e8b9c4a776b6c9c19a
-  sni: resources.searchnationwidecareerchangehelperandguidancetoday.com
-  skip-cert-verify: true
+  sni: cdn.discoverfreshgraduatejobsstartyourprofessionaljourney.com
+  skip-cert-verify: false
   network: tcp
 - name: US-trojan-167.88.61.198-443
   type: trojan
@@ -31,34 +23,36 @@ proxies:
   sni: cdn.browseseniorrolesandenhanceyourcareertoday.com
   skip-cert-verify: true
   network: tcp
-- name: US-trojan-216.106.186.82-443
+- name: US-trojan-170.101.101.19-443
   type: trojan
-  server: 216.106.186.82
+  server: 170.101.101.19
   port: 443
   password: 0ab6c98dae3b48e8b9c4a776b6c9c19a
-  sni: courses.findlocaljobnetworkandbuildcommunityconnections.com
-  skip-cert-verify: true
-- name: US-trojan-167.88.61.52-443
-  type: trojan
-  server: 167.88.61.52
-  port: 443
-  password: 0ab6c98dae3b48e8b9c4a776b6c9c19a
-  sni: courses.browseseniorrolesandenhanceyourcareertoday.com
-  skip-cert-verify: true
-- name: US-trojan-216.152.156.159-443
-  type: trojan
-  server: 216.152.156.159
-  port: 443
-  password: 0ab6c98dae3b48e8b9c4a776b6c9c19a
-  sni: resources.healthcarejobshubenhancemedicalprofessionalskillstoday.com
+  sni: learn.explorecreativejobsandenhanceyourcareerportfolio.com
   skip-cert-verify: false
   network: tcp
-- name: US-trojan-216.106.186.32-443
+- name: US-trojan-170.101.101.112-443
   type: trojan
-  server: 216.106.186.32
+  server: 170.101.101.112
   port: 443
   password: 0ab6c98dae3b48e8b9c4a776b6c9c19a
-  sni: blog.findlocaljobnetworkandbuildcommunityconnections.com
+  sni: resources.explorecreativejobsandenhanceyourcareerportfolio.com
+  skip-cert-verify: true
+  network: tcp
+- name: US-trojan-216.152.155.131-443
+  type: trojan
+  server: 216.152.155.131
+  port: 443
+  password: 0ab6c98dae3b48e8b9c4a776b6c9c19a
+  sni: www.nextjobopportunityandclaimyouridealrole.com
+  skip-cert-verify: false
+  network: tcp
+- name: US-trojan-169.197.140.169-443
+  type: trojan
+  server: 169.197.140.169
+  port: 443
+  password: 0ab6c98dae3b48e8b9c4a776b6c9c19a
+  sni: api.discoverfreshgraduatejobsstartyourprofessionaljourney.com
   skip-cert-verify: false
   network: tcp
 - name: US-trojan-167.88.61.20-443
@@ -69,98 +63,13 @@ proxies:
   sni: api.browseseniorrolesandenhanceyourcareertoday.com
   skip-cert-verify: false
   network: tcp
-- name: US-trojan-66.23.203.21-59689
+- name: US-trojan-216.152.156.212-443
   type: trojan
-  server: 66.23.203.21
-  port: 59689
-  password: ae7eb4dwyaz25pxwgq59
+  server: 216.152.156.212
+  port: 443
+  password: 0ab6c98dae3b48e8b9c4a776b6c9c19a
+  sni: courses.healthcarejobshubenhancemedicalprofessionalskillstoday.com
   skip-cert-verify: true
-  network: tcp
-- name: US-trojan-66.163.112.142-443
-  type: trojan
-  server: 66.163.112.142
-  port: 443
-  password: 0ab6c98dae3b48e8b9c4a776b6c9c19a
-  sni: cdn.unlockyourfuturefindyourperfectcareer.com
-  skip-cert-verify: false
-  network: tcp
-- name: US-trojan-170.101.101.211-443
-  type: trojan
-  server: 170.101.101.211
-  port: 443
-  password: 0ab6c98dae3b48e8b9c4a776b6c9c19a
-  sni: api.explorecreativejobsandenhanceyourcareerportfolio.com
-  skip-cert-verify: true
-  network: tcp
-- name: US-trojan-216.152.155.54-443
-  type: trojan
-  server: 216.152.155.54
-  port: 443
-  password: 0ab6c98dae3b48e8b9c4a776b6c9c19a
-  sni: learn.nextjobopportunityandclaimyouridealrole.com
-  skip-cert-verify: false
-  network: tcp
-- name: US-trojan-69.164.240.85-50875
-  type: trojan
-  server: 69.164.240.85
-  port: 50875
-  password: nwilryafgkyvuxauc8pz
-  skip-cert-verify: true
-  network: tcp
-- name: US-trojan-157.254.38.210-20103
-  type: trojan
-  server: 157.254.38.210
-  port: 20103
-  password: d7563108-615c-4338-a7bd-77f359869a4a
-  sni: hk.catxstar.com
-  skip-cert-verify: true
-  network: tcp
-- name: US-trojan-66.163.112.13-443
-  type: trojan
-  server: 66.163.112.13
-  port: 443
-  password: 0ab6c98dae3b48e8b9c4a776b6c9c19a
-  sni: blog.unlockyourfuturefindyourperfectcareer.com
-  skip-cert-verify: true
-- name: US-trojan-sclass-01.catcat321.com-20103
-  type: trojan
-  server: sclass-01.catcat321.com
-  port: 20103
-  password: d7563108-615c-4338-a7bd-77f359869a4a
-  sni: hk.catxstar.com
-  skip-cert-verify: false
-  network: tcp
-- name: US-trojan-216.152.155.131-443
-  type: trojan
-  server: 216.152.155.131
-  port: 443
-  password: 0ab6c98dae3b48e8b9c4a776b6c9c19a
-  sni: www.nextjobopportunityandclaimyouridealrole.com
-  skip-cert-verify: false
-  network: tcp
-- name: US-trojan-66.163.122.26-443
-  type: trojan
-  server: 66.163.122.26
-  port: 443
-  password: 0ab6c98dae3b48e8b9c4a776b6c9c19a
-  sni: blog.searchnationwidecareerchangehelperandguidancetoday.com
-  skip-cert-verify: false
-  network: tcp
-- name: US-trojan-167.88.61.193-443
-  type: trojan
-  server: 167.88.61.193
-  port: 443
-  password: 0ab6c98dae3b48e8b9c4a776b6c9c19a
-  sni: browseseniorrolesandenhanceyourcareertoday.com
-  skip-cert-verify: false
-  network: tcp
-- name: US-trojan-216.152.156.49-443
-  type: trojan
-  server: 216.152.156.49
-  port: 443
-  password: 0ab6c98dae3b48e8b9c4a776b6c9c19a
-  sni: cdn.healthcarejobshubenhancemedicalprofessionalskillstoday.com
-  skip-cert-verify: false
   network: tcp
 - name: US-trojan-167.88.61.175-443
   type: trojan
@@ -169,37 +78,93 @@ proxies:
   password: 0ab6c98dae3b48e8b9c4a776b6c9c19a
   sni: blog.browseseniorrolesandenhanceyourcareertoday.com
   skip-cert-verify: true
+- name: US-trojan-66.23.203.21-59689
+  type: trojan
+  server: 66.23.203.21
+  port: 59689
+  password: ae7eb4dwyaz25pxwgq59
+  sni: 66.23.203.21
+  skip-cert-verify: true
   network: tcp
+- name: US-trojan-48.102.218.118-8443
+  type: trojan
+  server: 48.102.218.118
+  port: 8443
+  password: BU4Sr6jWcc78Eh06srysDwhzc-Than
+  sni: ru.federal-usa.com
+  alpn:
+  - h2
+  - h3
+  - http/1.1
+  skip-cert-verify: true
 - name: US-trojan-216.152.156.42-443
   type: trojan
   server: 216.152.156.42
   port: 443
   password: 0ab6c98dae3b48e8b9c4a776b6c9c19a
-  sni: blog.healthcarejobshubenhancemedicalprofessionalskillstoday.com
+  skip-cert-verify: true
+- name: US-trojan-69.164.240.85-50875
+  type: trojan
+  server: 69.164.240.85
+  port: 50875
+  password: nwilryafgkyvuxauc8pz
   skip-cert-verify: true
   network: tcp
-- name: US-vless-www.zoom.us-443
+- name: US-vless-162.159.237.118-2083
   type: vless
-  server: www.zoom.us
-  port: 443
-  uuid: b19c62cc-f2c2-4895-aee1-978a0f58f8c8
-  servername: matrix.phonicsindia.mobi
-  skip-cert-verify: false
+  server: 162.159.237.118
+  port: 2083
+  uuid: a6ad7987-f17e-41fa-a752-72db9a725eb2
+  servername: vipfree.dr-ping.ir
+  skip-cert-verify: true
   tls: true
   network: ws
   ws-opts:
+    path: /
     headers:
-      Host: matrix.phonicsindia.mobi
-- name: US-trojan-216.106.186.46-443
-  type: trojan
-  server: 216.106.186.46
-  port: 443
-  password: 0ab6c98dae3b48e8b9c4a776b6c9c19a
-  sni: cdn.findlocaljobnetworkandbuildcommunityconnections.com
-  skip-cert-verify: true
-- name: US-vless-104.16.10.234-443
+      Host: vipfree.dr-ping.ir
+- name: US-vless-104.18.63.135-2083
   type: vless
-  server: 104.16.10.234
+  server: 104.18.63.135
+  port: 2083
+  uuid: a6ad7987-f17e-41fa-a752-72db9a725eb2
+  servername: vipfree.dr-ping.ir
+  skip-cert-verify: true
+  tls: true
+  network: ws
+  ws-opts:
+    path: /
+    headers:
+      Host: vipfree.dr-ping.ir
+- name: US-vless-104.17.145.145-2083
+  type: vless
+  server: 104.17.145.145
+  port: 2083
+  uuid: a6ad7987-f17e-41fa-a752-72db9a725eb2
+  servername: vipfree.dr-ping.ir
+  skip-cert-verify: true
+  tls: true
+  network: ws
+  ws-opts:
+    path: /
+    headers:
+      Host: vipfree.dr-ping.ir
+- name: US-vless-198.202.24.142-2083
+  type: vless
+  server: 198.202.24.142
+  port: 2083
+  uuid: a6ad7987-f17e-41fa-a752-72db9a725eb2
+  servername: vipfree.dr-ping.ir
+  skip-cert-verify: true
+  tls: true
+  network: ws
+  ws-opts:
+    path: /
+    headers:
+      Host: vipfree.dr-ping.ir
+- name: US-vless-64.178.113.127-443
+  type: vless
+  server: 64.178.113.127
   port: 443
   uuid: 4e4f1f70-5e56-4a76-bb9d-db087f4690c4
   servername: jp3.yohototo.top
@@ -210,281 +175,19 @@ proxies:
     path: /tyxyws
     headers:
       Host: jp3.yohototo.top
-- name: US-vless-104.18.37.127-443
+- name: US-vless-172.64.79.163-2083
   type: vless
-  server: 104.18.37.127
-  port: 443
-  uuid: 4e4f1f70-5e56-4a76-bb9d-db087f4690c4
-  servername: jp3.yohototo.top
+  server: 172.64.79.163
+  port: 2083
+  uuid: a6ad7987-f17e-41fa-a752-72db9a725eb2
+  servername: vipfree.dr-ping.ir
   skip-cert-verify: true
   tls: true
   network: ws
   ws-opts:
-    path: /tyxyws
+    path: /
     headers:
-      Host: jp3.yohototo.top
-- name: US-vless-104.21.70.228-443
-  type: vless
-  server: 104.21.70.228
-  port: 443
-  uuid: 4e4f1f70-5e56-4a76-bb9d-db087f4690c4
-  servername: jp3.yohototo.top
-  skip-cert-verify: true
-  tls: true
-  network: ws
-  ws-opts:
-    path: /tyxyws
-    headers:
-      Host: jp3.yohototo.top
-- name: US-vless-162.159.254.3-443
-  type: vless
-  server: 162.159.254.3
-  port: 443
-  uuid: 4e4f1f70-5e56-4a76-bb9d-db087f4690c4
-  servername: jp3.yohototo.top
-  skip-cert-verify: true
-  tls: true
-  network: ws
-  ws-opts:
-    path: /tyxyws
-    headers:
-      Host: jp3.yohototo.top
-- name: US-vless-104.21.70.21-443
-  type: vless
-  server: 104.21.70.21
-  port: 443
-  uuid: 4e4f1f70-5e56-4a76-bb9d-db087f4690c4
-  servername: jp3.yohototo.top
-  skip-cert-verify: true
-  tls: true
-  network: ws
-  ws-opts:
-    path: /tyxyws
-    headers:
-      Host: jp3.yohototo.top
-- name: US-vless-104.21.0.87-443
-  type: vless
-  server: 104.21.0.87
-  port: 443
-  uuid: 4e4f1f70-5e56-4a76-bb9d-db087f4690c4
-  servername: jp3.yohototo.top
-  skip-cert-verify: true
-  tls: true
-  network: ws
-  ws-opts:
-    path: /tyxyws
-    headers:
-      Host: jp3.yohototo.top
-- name: US-vless-104.19.33.237-443
-  type: vless
-  server: 104.19.33.237
-  port: 443
-  uuid: 4e4f1f70-5e56-4a76-bb9d-db087f4690c4
-  servername: jp3.yohototo.top
-  skip-cert-verify: true
-  tls: true
-  network: ws
-  ws-opts:
-    path: /tyxyws
-    headers:
-      Host: jp3.yohototo.top
-- name: US-vless-172.67.217.240-443
-  type: vless
-  server: 172.67.217.240
-  port: 443
-  uuid: 4e4f1f70-5e56-4a76-bb9d-db087f4690c4
-  servername: jp3.yohototo.top
-  skip-cert-verify: true
-  tls: true
-  network: ws
-  ws-opts:
-    path: /tyxyws
-    headers:
-      Host: jp3.yohototo.top
-- name: US-vless-104.18.42.98-443
-  type: vless
-  server: 104.18.42.98
-  port: 443
-  uuid: 4e4f1f70-5e56-4a76-bb9d-db087f4690c4
-  servername: jp3.yohototo.top
-  skip-cert-verify: true
-  tls: true
-  network: ws
-  ws-opts:
-    path: /tyxyws
-    headers:
-      Host: jp3.yohototo.top
-- name: US-vless-104.24.31.89-443
-  type: vless
-  server: 104.24.31.89
-  port: 443
-  uuid: 4e4f1f70-5e56-4a76-bb9d-db087f4690c4
-  servername: jp3.yohototo.top
-  skip-cert-verify: true
-  tls: true
-  network: ws
-  ws-opts:
-    path: /tyxyws
-    headers:
-      Host: jp3.yohototo.top
-- name: US-trojan-216.152.156.81-443
-  type: trojan
-  server: 216.152.156.81
-  port: 443
-  password: 0ab6c98dae3b48e8b9c4a776b6c9c19a
-  sni: www.healthcarejobshubenhancemedicalprofessionalskillstoday.com
-  skip-cert-verify: false
-  network: tcp
-- name: US-trojan-66.163.122.81-443
-  type: trojan
-  server: 66.163.122.81
-  port: 443
-  password: 0ab6c98dae3b48e8b9c4a776b6c9c19a
-  sni: courses.searchnationwidecareerchangehelperandguidancetoday.com
-  skip-cert-verify: true
-- name: US-trojan-169.197.140.208-443
-  type: trojan
-  server: 169.197.140.208
-  port: 443
-  password: 0ab6c98dae3b48e8b9c4a776b6c9c19a
-  sni: blog.discoverfreshgraduatejobsstartyourprofessionaljourney.com
-  skip-cert-verify: false
-  network: tcp
-- name: US-trojan-216.152.155.50-443
-  type: trojan
-  server: 216.152.155.50
-  port: 443
-  password: 0ab6c98dae3b48e8b9c4a776b6c9c19a
-  sni: cdn.nextjobopportunityandclaimyouridealrole.com
-  skip-cert-verify: false
-  network: tcp
-- name: US-trojan-216.152.156.65-443
-  type: trojan
-  server: 216.152.156.65
-  port: 443
-  password: 0ab6c98dae3b48e8b9c4a776b6c9c19a
-  sni: learn.healthcarejobshubenhancemedicalprofessionalskillstoday.com
-  skip-cert-verify: false
-  network: tcp
-- name: US-vless-104.19.48.107-443
-  type: vless
-  server: 104.19.48.107
-  port: 443
-  uuid: 4e4f1f70-5e56-4a76-bb9d-db087f4690c4
-  servername: jp3.yohototo.top
-  skip-cert-verify: true
-  tls: true
-  network: ws
-  ws-opts:
-    path: /tyxyws
-    headers:
-      Host: jp3.yohototo.top
-- name: US-vless-104.19.33.25-443
-  type: vless
-  server: 104.19.33.25
-  port: 443
-  uuid: 4e4f1f70-5e56-4a76-bb9d-db087f4690c4
-  servername: jp3.yohototo.top
-  skip-cert-verify: true
-  tls: true
-  network: ws
-  ws-opts:
-    path: /tyxyws
-    headers:
-      Host: jp3.yohototo.top
-- name: US-vless-104.19.164.155-443
-  type: vless
-  server: 104.19.164.155
-  port: 443
-  uuid: 4e4f1f70-5e56-4a76-bb9d-db087f4690c4
-  servername: jp3.yohototo.top
-  skip-cert-verify: true
-  tls: true
-  network: ws
-  ws-opts:
-    path: /tyxyws
-    headers:
-      Host: jp3.yohototo.top
-- name: US-vless-104.16.111.202-443
-  type: vless
-  server: 104.16.111.202
-  port: 443
-  uuid: 4e4f1f70-5e56-4a76-bb9d-db087f4690c4
-  servername: jp3.yohototo.top
-  skip-cert-verify: true
-  tls: true
-  network: ws
-  ws-opts:
-    path: /tyxyws
-    headers:
-      Host: jp3.yohototo.top
-- name: US-vless-104.17.3.81-443
-  type: vless
-  server: 104.17.3.81
-  port: 443
-  uuid: 12d67d2b-ae5c-4d56-9f14-d71d96f7826f
-  servername: natan.srpcom.cloud
-  skip-cert-verify: true
-  tls: true
-  network: ws
-  ws-opts:
-    path: /vlessws
-    headers:
-      Host: natan.srpcom.cloud
-- name: US-vless-104.16.10.56-443
-  type: vless
-  server: 104.16.10.56
-  port: 443
-  uuid: 4e4f1f70-5e56-4a76-bb9d-db087f4690c4
-  servername: jp3.yohototo.top
-  skip-cert-verify: true
-  tls: true
-  network: ws
-  ws-opts:
-    path: /tyxyws
-    headers:
-      Host: jp3.yohototo.top
-- name: US-vless-104.21.33.59-443
-  type: vless
-  server: 104.21.33.59
-  port: 443
-  uuid: 4e4f1f70-5e56-4a76-bb9d-db087f4690c4
-  servername: jp3.yohototo.top
-  skip-cert-verify: true
-  tls: true
-  network: ws
-  ws-opts:
-    path: /tyxyws
-    headers:
-      Host: jp3.yohototo.top
-- name: US-vless-104.16.111.102-443
-  type: vless
-  server: 104.16.111.102
-  port: 443
-  uuid: 4e4f1f70-5e56-4a76-bb9d-db087f4690c4
-  servername: jp3.yohototo.top
-  skip-cert-verify: true
-  tls: true
-  network: ws
-  ws-opts:
-    path: /tyxyws
-    headers:
-      Host: jp3.yohototo.top
-- name: US-vless-104.16.0.1-443
-  type: vless
-  server: 104.16.0.1
-  port: 443
-  uuid: 4e4f1f70-5e56-4a76-bb9d-db087f4690c4
-  servername: jp3.yohototo.top
-  skip-cert-verify: false
-  tls: true
-  alpn:
-  - http/1.1
-  network: ws
-  ws-opts:
-    path: /tyxyws
-    headers:
-      Host: jp3.yohototo.top
+      Host: vipfree.dr-ping.ir
 - name: US-vless-144.31.28.228-2096
   type: vless
   server: 144.31.28.228
@@ -498,103 +201,46 @@ proxies:
     path: /cdn/v3/live
     headers:
       Host: ste87ea.rumedia-cdn.com
-- name: US-vless-fr-free.fastestrelay.com-443
-  type: vless
-  server: fr-free.fastestrelay.com
+- name: US-trojan-170.101.101.67-443
+  type: trojan
+  server: 170.101.101.67
   port: 443
-  uuid: 364D2D52-E61E-4E52-80EC-2BC6BDF15349
-  servername: fr-free.fastestrelay.com
+  password: 0ab6c98dae3b48e8b9c4a776b6c9c19a
+  sni: courses.explorecreativejobsandenhanceyourcareerportfolio.com
   skip-cert-verify: false
-  tls: true
-  network: ws
-  ws-opts:
-    path: /700gvl
-    headers:
-      Host: fr-free.fastestrelay.com
-- name: US-vless-172.67.156.147-443
+  network: tcp
+- name: US-vless-104.21.33.59-443
   type: vless
-  server: 172.67.156.147
+  server: 104.21.33.59
   port: 443
   uuid: 4e4f1f70-5e56-4a76-bb9d-db087f4690c4
   servername: jp3.yohototo.top
-  skip-cert-verify: false
+  skip-cert-verify: true
   tls: true
   network: ws
   ws-opts:
     path: /tyxyws
     headers:
       Host: jp3.yohototo.top
-- name: US-vless-kuruish.org-443
+- name: US-vless-172.64.154.113-8443
   type: vless
-  server: kuruish.org
-  port: 443
-  uuid: 03fcc618-b93d-6796-6aed-8a38c975d581
-  servername: kuruish.org
-  skip-cert-verify: false
-  tls: true
-- name: US-vless-104.17.70.206-8443
-  type: vless
-  server: 104.17.70.206
+  server: 172.64.154.113
   port: 8443
-  uuid: 3692de53-42e6-4aed-a522-40ec355dcd2f
-  servername: free.sahanwickramasinghe.com
-  skip-cert-verify: false
+  uuid: 53bbdad4-2f4e-45db-8df4-fa491a6a7227
+  servername: freeceshi6.frii.site
+  skip-cert-verify: true
   tls: true
-  alpn:
-  - http/1.1
   network: ws
   ws-opts:
-    path: /
+    path: /proxyip=ProxyIP.JP.CMLiussss.net
     headers:
-      Host: free.sahanwickramasinghe.com
-- name: US-trojan-188.114.98.0-443
-  type: trojan
-  server: 188.114.98.0
-  port: 443
-  password: 883e3cc8-9613-4f2d-8c42-0dd3d429db55
-  alpn:
-  - http/1.1
-  skip-cert-verify: true
+      Host: freeceshi6.frii.site
 - name: US-trojan-66.163.112.121-443
   type: trojan
   server: 66.163.112.121
   port: 443
   password: 0ab6c98dae3b48e8b9c4a776b6c9c19a
   sni: 66.163.112.121
-  skip-cert-verify: true
-- name: US-trojan-66.163.112.242-443
-  type: trojan
-  server: 66.163.112.242
-  port: 443
-  password: 0ab6c98dae3b48e8b9c4a776b6c9c19a
-  sni: api.nextjobopportunityandclaimyouridealrole.com
-  skip-cert-verify: true
-- name: US-trojan-66.163.114.132-443
-  type: trojan
-  server: 66.163.114.132
-  port: 443
-  password: 0ab6c98dae3b48e8b9c4a776b6c9c19a
-  sni: 66.163.114.132
-  skip-cert-verify: true
-- name: US-trojan-resources.findlocaljobnetworkandbuildcommunityconnections.com-443
-  type: trojan
-  server: resources.findlocaljobnetworkandbuildcommunityconnections.com
-  port: 443
-  password: f0eb8c92ce8946aaba856569cff1a16b
-  skip-cert-verify: false
-- name: US-trojan-66.163.114.114-443
-  type: trojan
-  server: 66.163.114.114
-  port: 443
-  password: 0ab6c98dae3b48e8b9c4a776b6c9c19a
-  sni: 66.163.114.114
-  skip-cert-verify: true
-- name: US-trojan-66.163.112.76-443
-  type: trojan
-  server: 66.163.112.76
-  port: 443
-  password: 0ab6c98dae3b48e8b9c4a776b6c9c19a
-  sni: api.unlockyourfuturefindyourperfectcareer.com
   skip-cert-verify: true
 - name: US-trojan-216.152.155.59-443
   type: trojan
@@ -603,48 +249,6 @@ proxies:
   password: 0ab6c98dae3b48e8b9c4a776b6c9c19a
   sni: api.nextjobopportunityandclaimyouridealrole.com
   skip-cert-verify: false
-- name: US-trojan-170.101.101.67-443
-  type: trojan
-  server: 170.101.101.67
-  port: 443
-  password: 0ab6c98dae3b48e8b9c4a776b6c9c19a
-  sni: courses.explorecreativejobsandenhanceyourcareerportfolio.com
-  skip-cert-verify: false
-- name: US-trojan-170.101.101.19-443
-  type: trojan
-  server: 170.101.101.19
-  port: 443
-  password: 0ab6c98dae3b48e8b9c4a776b6c9c19a
-  sni: learn.explorecreativejobsandenhanceyourcareerportfolio.com
-  skip-cert-verify: false
-- name: US-trojan-66.163.112.31-443
-  type: trojan
-  server: 66.163.112.31
-  port: 443
-  password: 0ab6c98dae3b48e8b9c4a776b6c9c19a
-  sni: unlockyourfuturefindyourperfectcareer.com
-  skip-cert-verify: false
-- name: US-trojan-216.152.155.23-443
-  type: trojan
-  server: 216.152.155.23
-  port: 443
-  password: 0ab6c98dae3b48e8b9c4a776b6c9c19a
-  sni: courses.nextjobopportunityandclaimyouridealrole.com
-  skip-cert-verify: false
-- name: US-trojan-169.197.140.169-443
-  type: trojan
-  server: 169.197.140.169
-  port: 443
-  password: 0ab6c98dae3b48e8b9c4a776b6c9c19a
-  sni: api.discoverfreshgraduatejobsstartyourprofessionaljourney.com
-  skip-cert-verify: false
-- name: US-trojan-169.197.140.245-443
-  type: trojan
-  server: 169.197.140.245
-  port: 443
-  password: 0ab6c98dae3b48e8b9c4a776b6c9c19a
-  sni: www.discoverfreshgraduatejobsstartyourprofessionaljourney.com
-  skip-cert-verify: false
 - name: US-trojan-169.197.140.218-443
   type: trojan
   server: 169.197.140.218
@@ -652,14 +256,6 @@ proxies:
   password: 0ab6c98dae3b48e8b9c4a776b6c9c19a
   sni: learn.discoverfreshgraduatejobsstartyourprofessionaljourney.com
   skip-cert-verify: false
-- name: US-trojan-66.163.112.171-443
-  type: trojan
-  server: 66.163.112.171
-  port: 443
-  password: 0ab6c98dae3b48e8b9c4a776b6c9c19a
-  sni: learn.unlockyourfuturefindyourperfectcareer.com
-  skip-cert-verify: true
-  network: tcp
 - name: US-trojan-66.163.112.147-443
   type: trojan
   server: 66.163.112.147
@@ -676,21 +272,24 @@ proxies:
   sni: blog.findlocaljobnetworkandbuildcommunityconnections.com
   skip-cert-verify: true
   network: tcp
+- name: US-trojan-66.163.122.30-443
+  type: trojan
+  server: 66.163.122.30
+  port: 443
+  password: 0ab6c98dae3b48e8b9c4a776b6c9c19a
+  sni: resources.searchnationwidecareerchangehelperandguidancetoday.com
+  skip-cert-verify: true
+  network: tcp
+- name: US-trojan-sclass-01.catcat321.com-20103
+  type: trojan
+  server: sclass-01.catcat321.com
+  port: 20103
+  password: d7563108-615c-4338-a7bd-77f359869a4a
+  sni: hk.catxstar.com
+  skip-cert-verify: true
 - name: US-trojan-66.163.112.171-
   type: trojan
   server: 66.163.112.171
-  port: 443
-  password: 0ab6c98dae3b48e8b9c4a776b6c9c19a
-  skip-cert-verify: true
-- name: US-trojan-66.163.112.31-
-  type: trojan
-  server: 66.163.112.31
-  port: 443
-  password: 0ab6c98dae3b48e8b9c4a776b6c9c19a
-  skip-cert-verify: true
-- name: US-trojan-66.163.112.242-
-  type: trojan
-  server: 66.163.112.242
   port: 443
   password: 0ab6c98dae3b48e8b9c4a776b6c9c19a
   skip-cert-verify: true
@@ -706,36 +305,71 @@ proxies:
   port: 443
   password: 0ab6c98dae3b48e8b9c4a776b6c9c19a
   skip-cert-verify: true
-- name: US-trojan-66.163.112.147-
+- name: US-trojan-192.236.151.43-443
   type: trojan
-  server: 66.163.112.147
+  server: 192.236.151.43
+  port: 443
+  password: OnHLrkVqZVtZyulTwC4bHrIbW7GyUDttKVNGEYVR12Y=
+  skip-cert-verify: true
+- name: US-trojan-69.164.240.85-
+  type: trojan
+  server: 69.164.240.85
+  port: 443
+  password: nwilryafgkyvuxauc8pz
+  skip-cert-verify: true
+- name: US-trojan-216.152.156.65-
+  type: trojan
+  server: 216.152.156.65
   port: 443
   password: 0ab6c98dae3b48e8b9c4a776b6c9c19a
   skip-cert-verify: true
-- name: US-trojan-blog.findlocaljobnetworkandbuildcommunityconnections.com-
+- name: US-trojan-170.101.101.67-
   type: trojan
-  server: blog.findlocaljobnetworkandbuildcommunityconnections.com
+  server: 170.101.101.67
+  port: 443
+  password: 0ab6c98dae3b48e8b9c4a776b6c9c19a
+  skip-cert-verify: true
+- name: US-trojan-216.152.155.59-
+  type: trojan
+  server: 216.152.155.59
+  port: 443
+  password: 0ab6c98dae3b48e8b9c4a776b6c9c19a
+  skip-cert-verify: true
+- name: US-trojan-216.152.156.42-
+  type: trojan
+  server: 216.152.156.42
+  port: 443
+  password: 0ab6c98dae3b48e8b9c4a776b6c9c19a
+  skip-cert-verify: true
+- name: US-trojan-216.152.155.131-
+  type: trojan
+  server: 216.152.155.131
+  port: 443
+  password: 0ab6c98dae3b48e8b9c4a776b6c9c19a
+  skip-cert-verify: true
+- name: US-trojan-216.152.156.212-
+  type: trojan
+  server: 216.152.156.212
+  port: 443
+  password: 0ab6c98dae3b48e8b9c4a776b6c9c19a
+  skip-cert-verify: true
+- name: US-trojan-216.106.186.32-
+  type: trojan
+  server: 216.106.186.32
   port: 443
   password: dba20dcb635e430fa4d3bfc303a149d2
   skip-cert-verify: true
-- name: US-trojan-216.106.186.46-
+- name: US-trojan-167.88.61.85-
   type: trojan
-  server: 216.106.186.46
+  server: 167.88.61.85
   port: 443
   password: 0ab6c98dae3b48e8b9c4a776b6c9c19a
   skip-cert-verify: true
-- name: US-trojan-66.163.122.30-
+- name: US-trojan-66.23.203.21-
   type: trojan
-  server: 66.163.122.30
+  server: 66.23.203.21
   port: 443
-  password: 0ab6c98dae3b48e8b9c4a776b6c9c19a
-  skip-cert-verify: true
-- name: US-trojan-179.255.132.69-443
-  type: trojan
-  server: 179.255.132.69
-  port: 443
-  password: humanity
-  sni: www.cordweave.com
+  password: ae7eb4dwyaz25pxwgq59
   skip-cert-verify: true
 proxy-groups:
 - name: PROXY
@@ -743,88 +377,51 @@ proxy-groups:
   proxies:
   - DIRECT
   - REJECT
-  - US-trojan-167.88.61.85-443
-  - US-trojan-216.152.156.212-443
-  - US-trojan-66.163.122.30-443
-  - US-trojan-167.88.61.198-443
-  - US-trojan-216.106.186.82-443
-  - US-trojan-167.88.61.52-443
-  - US-trojan-216.152.156.159-443
-  - US-trojan-216.106.186.32-443
-  - US-trojan-167.88.61.20-443
-  - US-trojan-66.23.203.21-59689
-  - US-trojan-66.163.112.142-443
-  - US-trojan-170.101.101.211-443
-  - US-trojan-216.152.155.54-443
-  - US-trojan-69.164.240.85-50875
-  - US-trojan-157.254.38.210-20103
-  - US-trojan-66.163.112.13-443
-  - US-trojan-sclass-01.catcat321.com-20103
-  - US-trojan-216.152.155.131-443
-  - US-trojan-66.163.122.26-443
   - US-trojan-167.88.61.193-443
-  - US-trojan-216.152.156.49-443
-  - US-trojan-167.88.61.175-443
-  - US-trojan-216.152.156.42-443
-  - US-vless-www.zoom.us-443
-  - US-trojan-216.106.186.46-443
-  - US-vless-104.16.10.234-443
-  - US-vless-104.18.37.127-443
-  - US-vless-104.21.70.228-443
-  - US-vless-162.159.254.3-443
-  - US-vless-104.21.70.21-443
-  - US-vless-104.21.0.87-443
-  - US-vless-104.19.33.237-443
-  - US-vless-172.67.217.240-443
-  - US-vless-104.18.42.98-443
-  - US-vless-104.24.31.89-443
-  - US-trojan-216.152.156.81-443
-  - US-trojan-66.163.122.81-443
-  - US-trojan-169.197.140.208-443
-  - US-trojan-216.152.155.50-443
-  - US-trojan-216.152.156.65-443
-  - US-vless-104.19.48.107-443
-  - US-vless-104.19.33.25-443
-  - US-vless-104.19.164.155-443
-  - US-vless-104.16.111.202-443
-  - US-vless-104.17.3.81-443
-  - US-vless-104.16.10.56-443
-  - US-vless-104.21.33.59-443
-  - US-vless-104.16.111.102-443
-  - US-vless-104.16.0.1-443
-  - US-vless-144.31.28.228-2096
-  - US-vless-fr-free.fastestrelay.com-443
-  - US-vless-172.67.156.147-443
-  - US-vless-kuruish.org-443
-  - US-vless-104.17.70.206-8443
-  - US-trojan-188.114.98.0-443
-  - US-trojan-66.163.112.121-443
-  - US-trojan-66.163.112.242-443
-  - US-trojan-66.163.114.132-443
-  - US-trojan-resources.findlocaljobnetworkandbuildcommunityconnections.com-443
-  - US-trojan-66.163.114.114-443
-  - US-trojan-66.163.112.76-443
-  - US-trojan-216.152.155.59-443
-  - US-trojan-170.101.101.67-443
+  - US-trojan-169.197.140.171-443
+  - US-trojan-167.88.61.198-443
   - US-trojan-170.101.101.19-443
-  - US-trojan-66.163.112.31-443
-  - US-trojan-216.152.155.23-443
+  - US-trojan-170.101.101.112-443
+  - US-trojan-216.152.155.131-443
   - US-trojan-169.197.140.169-443
-  - US-trojan-169.197.140.245-443
+  - US-trojan-167.88.61.20-443
+  - US-trojan-216.152.156.212-443
+  - US-trojan-167.88.61.175-443
+  - US-trojan-66.23.203.21-59689
+  - US-trojan-48.102.218.118-8443
+  - US-trojan-216.152.156.42-443
+  - US-trojan-69.164.240.85-50875
+  - US-vless-162.159.237.118-2083
+  - US-vless-104.18.63.135-2083
+  - US-vless-104.17.145.145-2083
+  - US-vless-198.202.24.142-2083
+  - US-vless-64.178.113.127-443
+  - US-vless-172.64.79.163-2083
+  - US-vless-144.31.28.228-2096
+  - US-trojan-170.101.101.67-443
+  - US-vless-104.21.33.59-443
+  - US-vless-172.64.154.113-8443
+  - US-trojan-66.163.112.121-443
+  - US-trojan-216.152.155.59-443
   - US-trojan-169.197.140.218-443
-  - US-trojan-66.163.112.171-443
   - US-trojan-66.163.112.147-443
   - US-trojan-blog.findlocaljobnetworkandbuildcommunityconnections.com-443
+  - US-trojan-66.163.122.30-443
+  - US-trojan-sclass-01.catcat321.com-20103
   - US-trojan-66.163.112.171-
-  - US-trojan-66.163.112.31-
-  - US-trojan-66.163.112.242-
   - US-trojan-170.101.101.211-
   - US-trojan-216.106.186.82-
-  - US-trojan-66.163.112.147-
-  - US-trojan-blog.findlocaljobnetworkandbuildcommunityconnections.com-
-  - US-trojan-216.106.186.46-
-  - US-trojan-66.163.122.30-
-  - US-trojan-179.255.132.69-443
+  - US-trojan-192.236.151.43-443
+  - US-trojan-69.164.240.85-
+  - US-trojan-216.152.156.65-
+  - US-trojan-170.101.101.67-
+  - US-trojan-216.152.155.59-
+  - US-trojan-216.152.156.42-
+  - US-trojan-216.152.155.131-
+  - US-trojan-216.152.156.212-
+  - US-trojan-216.106.186.32-
+  - US-trojan-167.88.61.85-
+  - US-trojan-66.23.203.21-
 rules:
 - GEOIP,private,DIRECT,no-resolve
 - MATCH,PROXY

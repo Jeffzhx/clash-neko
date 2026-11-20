@@ -1,6 +1,6 @@
 {
-  "generated_at": "2026-11-19T21:38:51+00:00",
-  "count": 53,
+  "generated_at": "2026-11-20T10:44:01+00:00",
+  "count": 68,
   "repos": [
     {
       "full_name": "rekt0ro/ProxyRift",
@@ -417,6 +417,126 @@
       "fetched_at": "2026-11-19",
       "criteria": "stars-unlimited",
       "branch": "main"
+    },
+    {
+      "full_name": "eylandoo/openvpn_webpanel_manager",
+      "stars": 297,
+      "url": "https://github.com/eylandoo/openvpn_webpanel_manager",
+      "fetched_at": "2026-10-13",
+      "criteria": "stars-unlimited",
+      "branch": "main"
+    },
+    {
+      "full_name": "Ptechgithub/sing-box",
+      "stars": 166,
+      "url": "https://github.com/Ptechgithub/sing-box",
+      "fetched_at": "2024-11-09",
+      "criteria": "stars-unlimited",
+      "branch": "main"
+    },
+    {
+      "full_name": "rtwo2/FastNodes",
+      "stars": 108,
+      "url": "https://github.com/rtwo2/FastNodes",
+      "fetched_at": "2026-11-20",
+      "criteria": "stars-unlimited",
+      "branch": "main"
+    },
+    {
+      "full_name": "VoroninaYanina/free-nodes",
+      "stars": 107,
+      "url": "https://github.com/VoroninaYanina/free-nodes",
+      "fetched_at": "2026-11-20",
+      "criteria": "stars-unlimited",
+      "branch": "main"
+    },
+    {
+      "full_name": "cwash797-cmd/WASL",
+      "stars": 59,
+      "url": "https://github.com/cwash797-cmd/WASL",
+      "fetched_at": "2026-10-15",
+      "criteria": "stars-unlimited",
+      "branch": "main"
+    },
+    {
+      "full_name": "LeilaoMi/AutoMergePublicNodes-Optimized",
+      "stars": 49,
+      "url": "https://github.com/LeilaoMi/AutoMergePublicNodes-Optimized",
+      "fetched_at": "2026-11-20",
+      "criteria": "stars-unlimited",
+      "branch": "main"
+    },
+    {
+      "full_name": "icecompany-tech/iceslab",
+      "stars": 49,
+      "url": "https://github.com/icecompany-tech/iceslab",
+      "fetched_at": "2026-11-10",
+      "criteria": "stars-unlimited",
+      "branch": "main"
+    },
+    {
+      "full_name": "RomanovCaesar/m-ui",
+      "stars": 47,
+      "url": "https://github.com/RomanovCaesar/m-ui",
+      "fetched_at": "2026-11-15",
+      "criteria": "stars-unlimited",
+      "branch": "main"
+    },
+    {
+      "full_name": "free-proxy-nodes/free-nodes",
+      "stars": 41,
+      "url": "https://github.com/free-proxy-nodes/free-nodes",
+      "fetched_at": "2026-11-20",
+      "criteria": "stars-unlimited",
+      "branch": "main"
+    },
+    {
+      "full_name": "NOVA-X-PANEL/NOVA-X-PANEL",
+      "stars": 41,
+      "url": "https://github.com/NOVA-X-PANEL/NOVA-X-PANEL",
+      "fetched_at": "2026-11-19",
+      "criteria": "stars-unlimited",
+      "branch": "main"
+    },
+    {
+      "full_name": "vevc/node-xah",
+      "stars": 40,
+      "url": "https://github.com/vevc/node-xah",
+      "fetched_at": "2025-10-24",
+      "criteria": "stars-unlimited",
+      "branch": "main"
+    },
+    {
+      "full_name": "Con-Benksl/v-swift",
+      "stars": 31,
+      "url": "https://github.com/Con-Benksl/v-swift",
+      "fetched_at": "2026-10-03",
+      "criteria": "stars-unlimited",
+      "branch": "main"
+    },
+    {
+      "full_name": "liuarui/onebox",
+      "stars": 31,
+      "url": "https://github.com/liuarui/onebox",
+      "fetched_at": "2026-11-20",
+      "criteria": "stars-unlimited",
+      "branch": "main"
+    },
+    {
+      "full_name": "jytt8u/Marvia",
+      "stars": 28,
+      "url": "https://github.com/jytt8u/Marvia",
+      "fetched_at": "2026-10-29",
+      "criteria": "stars-unlimited",
+      "branch": "main"
+    },
+    {
+      "full_name": "SIPC/H2O",
+      "stars": 22,
+      "url": "https://github.com/SIPC/H2O",
+      "fetched_at": "2026-06-16",
+      "criteria": "stars-unlimited",
+      "branch": "master"
     }
   ]
 }
