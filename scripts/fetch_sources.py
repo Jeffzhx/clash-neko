@@ -71,7 +71,15 @@ MAX_BYTES = 300000
 # 订阅/节点类文件优先；README 最后（README 常无节点或只有示例链接）
 SUB_PREFER = re.compile(r"(subscription|sub/|sub\.|all\.txt|node|proxy|clash|hysteria|anytls|\.ya?ml$|\.json$)", re.I)
 README_RE = re.compile(r"(^|/)readme", re.I)
-CFG_RE = re.compile(r"\.(ya?ml|json|txt|md)$", re.I)
+CFG_RE = re.compile(
+    r"\.(ya?ml|json|txt|md|conf|ini|list)$"
+    r"|/(sub|subs|nodes?|proxies|proxy|clash|config|servers?|all)$",
+    re.I,
+)
+# 2026-11-20 补「无扩展名」这一类：v2rayfree 的日更文件路径形如 `v20261119/sub`，
+# 旧 CFG_RE 只认扩展名，把它整份跳过（该文件实测含 8 个节点）。
+# 不改成「下载后内容嗅探」的原因很实际：够不够格下载是在 tree 阶段决定的，
+# 嗅探要先下载，只能把每个 blob 都拉一遍——成本远高于这条路径白名单。
 # URI 正则：原 hysteria/hy2/anytls 之外扩展 tuic / vless / trojan / naive(+https/+http)。
 # 注意：字符类不再排除 '-'，否则 VLESS/TUIC 的 UUID（形如 aaaa-bbbb-...）会被截断。
 # naive+https / naive+http 必须排在 naive 之前，否则 alternation 先命中 naive 而漏掉 '+' 形式。
@@ -214,7 +222,9 @@ def _pick_files(cands: list) -> list:
 
 def tree_files(full_name: str, branch: str):
     """返回候选文件路径列表；None 表示整源失败（tree 请求失败）。命中缓存不请求。"""
-    key = _cache_key("tree_v2", full_name, branch)  # v2：缓存未排序的完整候选，读取时再按当前策略挑选
+    # v3：候选列表是在抓取时就按 CFG_RE 过滤后落缓存的，放宽 CFG_RE 必须换 key，
+    # 否则旧缓存里没有那些无扩展名文件，改了等于没改。
+    key = _cache_key("tree_v3", full_name, branch)
     cached = _cache_get(key)
     if cached is not None:
         return _pick_files(cached)
@@ -363,7 +373,12 @@ def parse_nodes_ext(text: str) -> list:
         n = dict(obj)  # 协议专有字段原样保留，供 U5 组配置
         n["type"] = t
         n["server"] = str(obj["server"]).strip()
-        n["port"] = _extract_port(obj.get("port"))
+        # sing-box JSON 用 server_port，Clash 用 port；旧实现只读 port，
+        # 导致 sing-box 格式的源整份丢端口（实测 awesome-vpn 16/16 全丢）。
+        raw_port = obj.get("port")
+        if raw_port in (None, ""):
+            raw_port = obj.get("server_port")
+        n["port"] = _extract_port(raw_port)
         nodes.append(n)
 
     try:

@@ -194,7 +194,9 @@ jobs:
           fi
 
           # 只把产物加入 gh-pages 的 index
-          git add main.yaml nekobox.json sources.json probe/geoip-report.md probe/liveness-report.md probe/subscription-build-report.md probe/discover-report.md
+          # us_nodes.json 是「候选快照」：地域过滤后、未经可用性裁决的节点清单，
+          # 供本机在国内网络做最终收官（CI 跑在境外 runner，判定不了国内可用性）。
+          git add main.yaml nekobox.json sources.json us_nodes.json probe/geoip-report.md probe/liveness-report.md probe/subscription-build-report.md probe/discover-report.md
           TREE="$(git write-tree)"
 
           # 与上次内容相同则跳过（避免空提交）

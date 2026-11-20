@@ -48,6 +48,17 @@ MIHOMO_BIN = os.environ.get("MIHOMO_BIN", "").strip()
 TEST_URL = os.environ.get("MIHOMO_TEST_URL", "").strip() or "http://www.gstatic.com/generate_204"
 TIMEOUT_MS = int(os.environ.get("MIHOMO_TIMEOUT", "8000") or 8000)
 VERSION_LABEL = os.environ.get("MIHOMO_VERSION", "").strip()
+# 出口校验：delay 只证明「有东西回了 204」，中间盒/白名单假节点同样能秒回。
+# 开启后对已 alive 的节点再发一次真实 HTTPS 请求，记录它出网时被看到的公网 IP；
+# 出口落在中国大陆（loc=CN）或取不到出口的节点判为不可用。设 0 关闭。
+VERIFY_EGRESS = os.environ.get("MIHOMO_VERIFY_EGRESS", "1").strip().lower() not in ("0", "false", "no", "off")
+# 默认用明文 HTTP 的回显服务：慢节点上 TLS 握手经常超过 mihomo 的 5s 拨号上限，
+# 用 https 当靶子会把「慢但能用」的节点误判成不可用（实测 56/59 都在 5s 处被砍）。
+EGRESS_URL = os.environ.get("MIHOMO_EGRESS_URL", "").strip() or "http://api.ipify.org"
+EGRESS_FALLBACK = "https://www.cloudflare.com/cdn-cgi/trace"
+EGRESS_MAX = int(os.environ.get("MIHOMO_EGRESS_MAX", "200") or 200)
+EGRESS_MMDB = os.environ.get("GEOIP_MMDB", "").strip() or \
+    r"D:/AI/2026-09-16-02-16-43/clash-nodes/kernel-test/Country.mmdb"
 
 GOOD_TYPES = {"hysteria", "hysteria2", "anytls", "tuic", "vless", "trojan"}  # naive 已移除：mihomo 内核不支持
 DEFAULT_UP = "100 Mbps"
@@ -57,6 +68,56 @@ BOOT_WAIT_SEC = 20  # CI 上内核启动可能比本机慢，放宽等待；失�
 
 def utc_now_iso() -> str:
     return datetime.datetime.now(datetime.timezone.utc).isoformat(timespec="seconds")
+
+
+# 本机若开着 TUN（mihomo/Clash 的虚拟网卡默认占 198.18.0.0/15），内核发出的测活流量会被
+# 再转发一层到当前出口，于是「只有经由当前出口才连得上」的节点也会被判 alive —— 假阳性。
+TUN_HINT_PREFIXES = ("198.18.", "198.19.")
+
+
+def _default_gateway() -> str:
+    """尽力取默认网关；取不到返回空串（不影响测活，只影响环境提示）。"""
+    try:
+        if os.name == "nt":
+            out = subprocess.run(["route", "print", "-4"], capture_output=True, text=True,
+                                 timeout=8, errors="replace").stdout
+            best = None
+            for line in out.splitlines():
+                parts = line.split()
+                if len(parts) >= 5 and parts[0] == "0.0.0.0" and parts[1] == "0.0.0.0":
+                    gw, metric = parts[2], parts[4]
+                    if metric.isdigit() and (best is None or int(metric) < best[1]):
+                        best = (gw, int(metric))
+            return best[0] if best else ""
+        out = subprocess.run(["ip", "route", "show", "default"], capture_output=True, text=True,
+                             timeout=8, errors="replace").stdout
+        for line in out.splitlines():
+            parts = line.split()
+            if "via" in parts:
+                return parts[parts.index("via") + 1]
+    except Exception:
+        pass
+    return ""
+
+
+def detect_environment() -> dict:
+    """记录测活机器的网络环境，并在疑似被本机 TUN/系统代理再转发时给出明确警告。"""
+    proxy_env = {k: v for k, v in os.environ.items()
+                 if k.lower() in ("http_proxy", "https_proxy", "all_proxy") and v.strip()}
+    gw = _default_gateway()
+    tun = bool(gw) and gw.startswith(TUN_HINT_PREFIXES)
+    return {"default_gateway": gw, "tun_suspected": tun, "proxy_env_set": bool(proxy_env)}
+
+
+def warn_environment(env: dict) -> None:
+    if env.get("tun_suspected"):
+        print("[kernel-probe] 警告：默认网关 %s 落在 TUN 网段（198.18/198.19），"
+              "测活流量会被本机代理再转发一层 —— 结果可能把「只在你当前出口才连得上」的节点"
+              "误判为可用。做「国内能不能用」的结论前，请先关闭 TUN/系统代理再跑。"
+              % env["default_gateway"], file=sys.stderr, flush=True)
+    if env.get("proxy_env_set"):
+        print("[kernel-probe] 提示：环境变量里存在 http(s)_proxy（内核走自己出口、不受其影响，"
+              "但用 curl 手工复测时会被它接管）。", file=sys.stderr, flush=True)
 
 
 def _first(node: dict, *keys: str, default: str = "") -> str:
@@ -241,16 +302,28 @@ def to_mihomo_proxy(node: dict, name: str) -> dict:
     return proxy
 
 
-def build_config(nodes: list[dict], controller_port: int, workdir: str) -> str:
-    """生成最小 mihomo 配置：只跑 external-controller，不做任何代理监听。"""
+def build_config(nodes: list[dict], controller_port: int, workdir: str,
+                 mixed_port: int | None = None) -> str:
+    """生成最小 mihomo 配置：只跑 external-controller；需要出口校验时才开一个本地 mixed-port。"""
     import yaml
     proxies = [to_mihomo_proxy(n, f"K{i}") for i, n in enumerate(nodes)]
     cfg = {
-        "mode": "direct",
+        # 有 mixed-port 时必须 rule 模式：direct 会让出口校验的请求绕过代理直连，
+        # 测出来的出口是本机出口（假结果）。没有 mixed-port 时不监听，direct 不影响 delay。
+        "mode": "rule" if mixed_port else "direct",
         "external-controller": f"127.0.0.1:{controller_port}",
         "proxies": proxies,
         "rules": [],
     }
+    if mixed_port:
+        # 仅给出口校验用：一个 select 组按需切到某个节点，真实请求经 mixed-port 出去。
+        cfg["mixed-port"] = mixed_port
+        cfg["proxy-groups"] = [{
+            "name": EGRESS_GROUP,
+            "type": "select",
+            "proxies": [p["name"] for p in proxies] or ["DIRECT"],
+        }]
+        cfg["rules"] = [f"MATCH,{EGRESS_GROUP}"]
     path = os.path.join(workdir, "config.yaml")
     with open(path, "w", encoding="utf-8", newline="\n") as f:
         yaml.safe_dump(cfg, f, allow_unicode=True, sort_keys=False)
@@ -305,6 +378,177 @@ def precheck_config(nodes: list[dict], workdir: str) -> tuple[list[dict], list[d
     return clean, dropped
 
 
+EGRESS_GROUP = "__egress__"
+UA_HTTP = "Mozilla/5.0 (compatible; kernel-probe/1.0)"
+_MMDB_HOLDER: dict = {}
+
+
+def _cc_from_record(rec) -> str:
+    """从 mmdb 记录里取两字母国家码；取不到返回空串（不猜）。
+
+    同一个库可能有三种记录形状，必须都认——否则 `except` 一吞，整道闸门就静默失效：
+      - GeoLite2 标准库：`{"country": {"iso_code": "us"}}`
+      - mihomo Meta-geoip：`"cn"`（纯字符串）
+      - mihomo Meta-geoip 多标签：`["us", "google"]`
+    """
+    if not rec:
+        return ""
+    if isinstance(rec, str):
+        s = rec.strip()
+        return s.upper() if len(s) == 2 and s.isalpha() else ""
+    if isinstance(rec, (list, tuple)):
+        for item in rec:
+            cc = _cc_from_record(item)
+            if cc:
+                return cc
+        return ""
+    if isinstance(rec, dict):
+        for key in ("country", "registered_country"):
+            sub = rec.get(key)
+            if isinstance(sub, str) and len(sub.strip()) == 2:
+                return sub.strip().upper()
+            if isinstance(sub, dict):
+                cc = str(sub.get("iso_code") or "").strip().upper()
+                if len(cc) == 2:
+                    return cc
+        # 有些精简库把国家码直接摊平在顶层
+        cc = str(rec.get("iso_code") or rec.get("country_code") or "").strip().upper()
+        return cc if len(cc) == 2 else ""
+    return ""
+
+
+def _open_mmdb(path: str):
+    """打开 mmdb，返回 (db, 原因)。失败时 db 为 None，原因写进报告便于定位。
+
+    两个坑（2026-11-20 本机复现）：
+      1) maxminddb 的 C 扩展会把 str 路径 fsencode 后交给 open()，Windows 上路径含中文时
+         直接抛 FileNotFoundError（本项目路径就含中文）。传 **文件对象** 可绕开。
+      2) mihomo 自带的 geoip.metadb 是 Meta-geoip0 格式，`get()` 返回纯字符串/列表，
+         不是 `{"country": {"iso_code": ...}}`——交给 _cc_from_record 统一处理。
+    """
+    if not path or not os.path.isfile(path):
+        return None, f"mmdb 不存在：{path or '(未设置 GEOIP_MMDB)'}"
+    try:
+        import maxminddb
+    except Exception as e:
+        return None, f"未安装 maxminddb（{type(e).__name__}）"
+    try:
+        with open(path, "rb") as f:
+            return maxminddb.open_database(f), ""
+    except Exception as e:
+        return None, f"mmdb 打开失败：{type(e).__name__}: {e}"
+
+
+def cc_of_ip(ip: str) -> str:
+    """用本地 mmdb 查出口 IP 的归属国；查不到返回空串（不猜）。"""
+    if not ip:
+        return ""
+    if "db" not in _MMDB_HOLDER:
+        db, why = _open_mmdb(EGRESS_MMDB)
+        _MMDB_HOLDER["db"] = db
+        _MMDB_HOLDER["why"] = why
+        if db is None:
+            # 出声不静默：这道闸门失效时，出口落在国内的假节点会被判成 alive。
+            print(f"[kernel-probe] 出口归属国判定不可用（{why}）→ 「出口在国内即改判 dead」本轮不生效",
+                  file=sys.stderr)
+    db = _MMDB_HOLDER["db"]
+    if db is None:
+        return ""
+    try:
+        return _cc_from_record(db.get(ip))
+    except Exception:
+        return ""
+
+
+def verify_egress(controller_port: int, mixed_port: int, records: list[dict]) -> None:
+    """对已判 alive 的节点做真实 HTTPS 出口校验，就地写回 `_liveness.egress`。
+
+    为什么需要：`/proxies/{name}/delay` 只证明「有东西回了 204」。国内中间盒、只放行
+    探测 URL 的白名单节点，都能把 delay 测得很漂亮，但真实流量出不去 —— 这就是
+    「测速 70ms 却打不开网页」的典型来源。这里改发一次真实 HTTPS，看它出网时
+    被看到的公网 IP：取不到 → 只有探测应答；出口是国内 → 请求根本没出国。
+    """
+    targets = [i for i, r in enumerate(records) if r["_liveness"]["alive"] is True]
+    if not targets:
+        return
+    if len(targets) > EGRESS_MAX:
+        print(f"[kernel-probe] 出口校验跳过：alive {len(targets)} 超过上限 {EGRESS_MAX}"
+              f"（用 MIHOMO_EGRESS_MAX 调大）", file=sys.stderr)
+        for i in targets:
+            records[i]["_liveness"]["egress"] = {"checked": False, "reason": "over_limit"}
+        return
+
+    # 只走内核 mixed-port，并清空环境代理：否则又会变成「经本机代理再转发」的假结果。
+    opener = urllib.request.build_opener(urllib.request.ProxyHandler({
+        "http": f"http://127.0.0.1:{mixed_port}",
+        "https": f"http://127.0.0.1:{mixed_port}",
+    }))
+    print(f"[kernel-probe] 出口校验开始：{len(targets)} 个 alive 节点，目标 {EGRESS_URL}", flush=True)
+    for i in targets:
+        rec = records[i]
+        name = f"K{i}"
+        try:
+            req = urllib.request.Request(
+                f"http://127.0.0.1:{controller_port}/proxies/{urllib.parse.quote(EGRESS_GROUP)}",
+                method="PUT", data=json.dumps({"name": name}).encode(),
+                headers={"Content-Type": "application/json"})
+            urllib.request.urlopen(req, timeout=5).read()
+        except Exception as e:
+            rec["_liveness"]["egress"] = {"checked": False, "reason": f"switch_failed:{type(e).__name__}"}
+            print(f"  [egress {i + 1}] {rec.get('server')} 切换失败 {type(e).__name__}", flush=True)
+            continue
+
+        t0 = time.time()
+        ip = loc = ""
+        err = ""
+        for target in (EGRESS_URL, EGRESS_FALLBACK):
+            try:
+                with opener.open(urllib.request.Request(target, headers={"User-Agent": UA_HTTP}),
+                                 timeout=max(10, TIMEOUT_MS / 1000 + 4)) as r:
+                    body = r.read(4096).decode("utf-8", "replace").strip()
+            except Exception as e:
+                err = f"{type(e).__name__}:{getattr(e, 'code', '')}"
+                continue
+            if body.startswith("{"):
+                try:
+                    doc = json.loads(body)
+                    ip = str(doc.get("query") or doc.get("ip") or "").strip()
+                    loc = str(doc.get("countryCode") or "").strip().upper()
+                except Exception:
+                    ip = ""
+            elif "=" in body:
+                for line in body.splitlines():
+                    if line.startswith("ip="):
+                        ip = line.split("=", 1)[1].strip()
+                    elif line.startswith("loc="):
+                        loc = line.split("=", 1)[1].strip().upper()
+            else:
+                ip = body.split()[0] if body else ""
+            if ip:
+                err = ""
+                break
+        if ip and not loc:
+            loc = cc_of_ip(ip)  # 明文回显只给 IP，归属国用本地 mmdb 判定
+        ms = int((time.time() - t0) * 1000)
+        rec["_liveness"]["egress"] = {"checked": True, "ip": ip, "loc": loc,
+                                      "latency_ms": ms, "error": err}
+        if loc == "CN":
+            rec["_liveness"]["alive"] = False
+            rec["_liveness"]["evidence"] = "egress_cn"
+            rec["_liveness"]["reason"] = (f"有据（负向）：delay 通，但真实流量出口在国内"
+                                          f"（{ip}，{ms}ms），请求没真正出国")
+        elif not ip:
+            rec["_liveness"]["alive"] = False
+            rec["_liveness"]["evidence"] = "egress_unreachable"
+            rec["_liveness"]["reason"] = (f"有据（负向）：delay 通，但真实 HTTPS 取不到出口"
+                                          f"（{err or '超时'}），说明只应答探测、无实际出网")
+        else:
+            rec["_liveness"]["reason"] += f"；真实出口 {ip}/{loc or '?'} {ms}ms"
+        print(f"  [egress {i + 1}/{len(targets)}] {rec.get('server')}:{rec.get('port')} -> "
+              f"{'OK' if rec['_liveness']['alive'] else 'DROP'} "
+              f"{ip or '-'}/{loc or '-'} {ms}ms {err}", flush=True)
+
+
 def wait_controller(port: int, proc: subprocess.Popen, deadline: int = BOOT_WAIT_SEC) -> bool:
     url = f"http://127.0.0.1:{port}/version"
     end = time.time() + deadline
@@ -351,6 +595,8 @@ def main() -> int:
         return 2
 
     now = utc_now_iso()
+    env_info = detect_environment()
+    warn_environment(env_info)
     nodes = load_us_nodes()
     print(f"[kernel-probe] 开始 {now}；内核={MIHOMO_BIN}；节点 {len(nodes)} 个；测试URL={TEST_URL}")
 
@@ -359,7 +605,8 @@ def main() -> int:
         # 否则单个坏节点拖垮整个配置、全部无法测活。被剔除的节点不进测活、也不进最终订阅。
         nodes, dropped = precheck_config(nodes, workdir)
         port = free_port()
-        cfg = build_config(nodes, port, workdir)
+        mixed_port = free_port() if VERIFY_EGRESS else None
+        cfg = build_config(nodes, port, workdir, mixed_port=mixed_port)
         # 内核日志写到文件而不是丢弃：启动失败时能打印出来定位（CI 上曾因 DEVNULL 看不到原因）。
         kernel_log = os.path.join(workdir, "kernel.log")
         logf = open(kernel_log, "w", encoding="utf-8", errors="replace")
@@ -424,6 +671,13 @@ def main() -> int:
                     "kernel_delay_ms": delay,
                 }
                 records.append(rec)
+
+            if VERIFY_EGRESS and mixed_port:
+                try:
+                    verify_egress(port, mixed_port, records)
+                except Exception as e:  # 校验失败不该让整轮失败：保留 delay 结论并在报告标注
+                    print(f"[kernel-probe] 出口校验异常（{type(e).__name__}: {e}），"
+                          f"仅保留 delay 结论", file=sys.stderr)
         finally:
             if proc.poll() is None:
                 proc.terminate()
@@ -436,6 +690,8 @@ def main() -> int:
     alive = [r for r in records if r["_liveness"]["alive"] is True]
     dead = [r for r in records if r["_liveness"]["alive"] is False]
     unknown = [r for r in records if r["_liveness"]["alive"] == "unknown"]
+    egress_cn = [r for r in records if r["_liveness"].get("evidence") == "egress_cn"]
+    egress_dead = [r for r in records if r["_liveness"].get("evidence") == "egress_unreachable"]
     out = {
         "generated_at": now,
         "unit": "U4-kernel",
@@ -444,9 +700,11 @@ def main() -> int:
             "version": VERSION_LABEL or "unknown",
             "test_url": TEST_URL,
             "timeout_ms": TIMEOUT_MS,
+            "egress_verify": bool(VERIFY_EGRESS and mixed_port),
+            "egress_url": EGRESS_URL if (VERIFY_EGRESS and mixed_port) else None,
             "decision": "内核完成 7 种协议握手且 HTTP 200/204 → alive；否则 dead（协议级负向）。",
         },
-        "environment": {"kernel_mode": True, "precheck_dropped": len(dropped)},
+        "environment": {"kernel_mode": True, "precheck_dropped": len(dropped), **env_info},
         "input_node_count": len(records),
         "alive_count": len(alive),
         "unknown_count": len(unknown),
@@ -464,7 +722,13 @@ def main() -> int:
         f"- 引擎：mihomo external-controller `/proxies/{{name}}/delay`（内核 {VERSION_LABEL or 'unknown'}）",
         f"- 测活 URL：`{TEST_URL}`；单节点超时 {TIMEOUT_MS}ms",
         f"- 判定：alive {len(alive)} / dead {len(dead)} / unknown {len(unknown)}",
-        f"- 预校验剔除非法节点：{len(dropped)}（内核 -t 检出的坏字段节点，不进测活也不进订阅）", "",
+        f"- 预校验剔除非法节点：{len(dropped)}（内核 -t 检出的坏字段节点，不进测活也不进订阅）",
+        (f"- 出口校验：开启（目标 `{EGRESS_URL}`）→ 真实流量取不到出口 {len(egress_dead)} 个、"
+         f"出口在国内 {len(egress_cn)} 个，均已改判 dead"
+         if (VERIFY_EGRESS and mixed_port) else "- 出口校验：未开启（`MIHOMO_VERIFY_EGRESS=0`）"),
+        f"- 测活环境：默认网关 `{env_info['default_gateway'] or '取不到'}`"
+        + ("（**TUN 网段，结果可能含假阳性：流量被本机代理再转发了一层**）"
+           if env_info["tun_suspected"] else "（未见 TUN 网段网关）"), "",
         "## 逐节点（server:port / 判定 / 延迟 / 依据）", "",
         "| # | server:port | 判定 | 延迟(ms) | 依据 |",
         "|---|-------------|------|----------|------|",

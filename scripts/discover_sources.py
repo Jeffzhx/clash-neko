@@ -37,15 +37,43 @@ PER_PAGE = 30
 STAR_FLOOR = "stars:>=1"  # 只设下限避免 0 star 垃圾；不设上限（用户明确不限 star）
 
 DEFAULT_QUERIES = [
+    # 英文：仓库名/描述里的常见叫法
     "proxy subscription",
     "clash subscription",
     "hysteria2 nodes",
     "free proxy",
     "nodeshare",
-    "订阅 节点",
     "v2ray subscription",
     "clash proxy nodes",
+    "free nodes",
+    "free clash nodes",
+    "clash meta nodes",
+    "node collector",
+    "proxy pool",
+    "subscription link",
+    "v2ray free nodes",
+    "trojan subscription",
+    "vmess subscription",
+    "sing-box config",
+    "clash yaml",
+    # topic 检索：社区给这类仓库打的标签，比关键词更少噪声
+    "topic:clash",
+    "topic:v2ray",
+    "topic:free-nodes",
+    "topic:proxy",
+    # 中文：多数日更源用中文命名
+    "订阅 节点",
+    "免费节点",
+    "节点 分享",
+    "白嫖 节点",
+    "每日更新 节点",
+    "机场 订阅",
+    "免费 机场",
+    "代理 节点",
 ]
+# 2026-11-20 由 8 条扩到 30 条：实测 8 条只能覆盖「名字里带 proxy/clash subscription」的仓库，
+# 而日更型源多命名为「免费节点」「白嫖」「daily」或只打 topic 标签，8 条一个都搜不到。
+# 调用量代价：每条一次 search 请求（少量），遇到限流时循环会跳过后续查询并记进 skipped_queries。
 
 # 命中任一关键词即视为“看起来是代理/订阅仓库”。
 # 用 subscri 而非裸 sub，避免 sublime/submit 之类误匹配。
@@ -77,16 +105,16 @@ def utc_now() -> str:
 def load_queries(args) -> tuple[list[str], str, str | None]:
     """返回 (queries, 来源描述, 警告)。自定义文件不可用则回退默认并记录警告。"""
     if not args.queries_file:
-        return list(DEFAULT_QUERIES), "内置默认 8 条（脚本常量）", None
+        return list(DEFAULT_QUERIES), f"内置默认 {len(DEFAULT_QUERIES)} 条（脚本常量）", None
     try:
         with open(args.queries_file, "r", encoding="utf-8") as f:
             lines = [ln.strip() for ln in f]
         qs = [ln for ln in lines if ln and not ln.startswith("#")]
         if qs:
             return qs, f"自定义文件 {args.queries_file}", None
-        return list(DEFAULT_QUERIES), "内置默认 8 条（脚本常量）", "queries-file 为空，已回退默认"
+        return list(DEFAULT_QUERIES), f"内置默认 {len(DEFAULT_QUERIES)} 条（脚本常量）", "queries-file 为空，已回退默认"
     except Exception as e:
-        return (list(DEFAULT_QUERIES), "内置默认 8 条（脚本常量）",
+        return (list(DEFAULT_QUERIES), f"内置默认 {len(DEFAULT_QUERIES)} 条（脚本常量）",
                 f"queries-file 读取失败({type(e).__name__})，已回退默认")
 
 
