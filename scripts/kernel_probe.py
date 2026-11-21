@@ -54,7 +54,12 @@ VERSION_LABEL = os.environ.get("MIHOMO_VERSION", "").strip()
 VERIFY_EGRESS = os.environ.get("MIHOMO_VERIFY_EGRESS", "1").strip().lower() not in ("0", "false", "no", "off")
 # 默认用明文 HTTP 的回显服务：慢节点上 TLS 握手经常超过 mihomo 的 5s 拨号上限，
 # 用 https 当靶子会把「慢但能用」的节点误判成不可用（实测 56/59 都在 5s 处被砍）。
-EGRESS_URL = os.environ.get("MIHOMO_EGRESS_URL", "").strip() or "http://api.ipify.org"
+# 2026-11-20 实测本机 http://api.ipify.org 已不可达（curl 直接返回 000、0 字节），
+# 换成 AWS 的明文回显（只回 IP，无速率限制、无 TLS）；归属国仍由本地 mmdb 判定。
+EGRESS_URL = os.environ.get("MIHOMO_EGRESS_URL", "").strip() or "http://checkip.amazonaws.com"
+# 一级兜底：明文 JSON，直接带 countryCode（免费额度 45 次/分，故只作兜底，不作首选）。
+EGRESS_FALLBACK_JSON = "http://ip-api.com/json/?fields=status,query,countryCode"
+# 二级兜底：trace 明文；但走 https 且可能返回 IPv6，仅在前面都失败时用。
 EGRESS_FALLBACK = "https://www.cloudflare.com/cdn-cgi/trace"
 EGRESS_MAX = int(os.environ.get("MIHOMO_EGRESS_MAX", "200") or 200)
 EGRESS_MMDB = os.environ.get("GEOIP_MMDB", "").strip() or \
@@ -64,6 +69,12 @@ GOOD_TYPES = {"hysteria", "hysteria2", "anytls", "tuic", "vless", "trojan"}  # n
 DEFAULT_UP = "100 Mbps"
 DEFAULT_DOWN = "200 Mbps"
 BOOT_WAIT_SEC = 20  # CI 上内核启动可能比本机慢，放宽等待；失败会打印内核日志尾部诊断
+
+# 对内核 external-controller（127.0.0.1）的请求必须**绕开系统代理**：
+# 实测本机设了 http_proxy=http://127.0.0.1:10809 时，urllib.request.proxy_bypass('127.0.0.1')
+# 返回 False，请求被系统代理接管，拿回来的是代理自己的 504/503 而不是内核的判定
+# （2026-11-20 实证：首跑 201 个节点全 dead、明细全是代理错误码，详见 D23）。
+_DIRECT_OPENER = urllib.request.build_opener(urllib.request.ProxyHandler({}))
 
 
 def utc_now_iso() -> str:
@@ -492,7 +503,7 @@ def verify_egress(controller_port: int, mixed_port: int, records: list[dict]) ->
                 f"http://127.0.0.1:{controller_port}/proxies/{urllib.parse.quote(EGRESS_GROUP)}",
                 method="PUT", data=json.dumps({"name": name}).encode(),
                 headers={"Content-Type": "application/json"})
-            urllib.request.urlopen(req, timeout=5).read()
+            _DIRECT_OPENER.open(req, timeout=5).read()
         except Exception as e:
             rec["_liveness"]["egress"] = {"checked": False, "reason": f"switch_failed:{type(e).__name__}"}
             print(f"  [egress {i + 1}] {rec.get('server')} 切换失败 {type(e).__name__}", flush=True)
@@ -501,7 +512,7 @@ def verify_egress(controller_port: int, mixed_port: int, records: list[dict]) ->
         t0 = time.time()
         ip = loc = ""
         err = ""
-        for target in (EGRESS_URL, EGRESS_FALLBACK):
+        for target in (EGRESS_URL, EGRESS_FALLBACK_JSON, EGRESS_FALLBACK):
             try:
                 with opener.open(urllib.request.Request(target, headers={"User-Agent": UA_HTTP}),
                                  timeout=max(10, TIMEOUT_MS / 1000 + 4)) as r:
@@ -544,6 +555,10 @@ def verify_egress(controller_port: int, mixed_port: int, records: list[dict]) ->
                                           f"（{err or '超时'}），说明只应答探测、无实际出网")
         else:
             rec["_liveness"]["reason"] += f"；真实出口 {ip}/{loc or '?'} {ms}ms"
+            if not loc:
+                # 拿得到 IP 但判不出归属国（IPv6 或 mmdb 无记录）：不算失败，但必须留痕，
+                # 否则「出口在国内改判 dead」这道闸门会在这批节点上静默失效。
+                rec["_liveness"]["reason"] += "；归属国未知（mmdb 无该 IP 记录，闸门对本节点未生效）"
         print(f"  [egress {i + 1}/{len(targets)}] {rec.get('server')}:{rec.get('port')} -> "
               f"{'OK' if rec['_liveness']['alive'] else 'DROP'} "
               f"{ip or '-'}/{loc or '-'} {ms}ms {err}", flush=True)
@@ -556,7 +571,7 @@ def wait_controller(port: int, proc: subprocess.Popen, deadline: int = BOOT_WAIT
         if proc.poll() is not None:
             return False
         try:
-            with urllib.request.urlopen(url, timeout=1) as r:
+            with _DIRECT_OPENER.open(url, timeout=1) as r:
                 if r.status == 200:
                     return True
         except Exception:
@@ -570,7 +585,7 @@ def proxy_delay(port: int, name: str) -> tuple[int | None, str]:
                                  "expected": "200/204"})
     url = f"http://127.0.0.1:{port}/proxies/{urllib.parse.quote(name)}/delay?{q}"
     try:
-        with urllib.request.urlopen(url, timeout=(TIMEOUT_MS / 1000) + 3) as r:
+        with _DIRECT_OPENER.open(url, timeout=(TIMEOUT_MS / 1000) + 3) as r:
             body = r.read().decode("utf-8", "ignore")
         d = json.loads(body)
         delay = d.get("delay")
